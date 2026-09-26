@@ -1,34 +1,46 @@
 // BPS Chapter Divider Component
+// Judul bab memakai heading() agar otomatis masuk DAFTAR ISI,
+// sekaligus memperbarui nama bagian pada header halaman.
+#import "state.typ": section-name
+
 #let chapter-divider(
   chapter_no: 1,
   title_id: "",
   title_en: "",
   highlight_label: "",
   highlight_val: "",
+  first: false,
 ) = [
-  #pagebreak(to: "odd")
-  
+  // Nama bab harus diupdate sebelum pagebreak agar header halaman
+  // pembatas sudah memuat nama bab yang benar.
+  #section-name.update(upper(title_id))
+  #if not first [
+    #pagebreak(to: "odd")
+  ]
+
   #v(3cm)
-  
+
   // Chapter Number
   #align(left)[
     #text(font: ("Roboto", "Arial"), size: 54pt, weight: "black", fill: rgb("#E67E22"))[#str(chapter_no)]
   ]
-  
+
   #v(-15pt)
-  
-  // Chapter Titles
+
+  // Chapter Titles (heading level 1 -> tercantum pada Daftar Isi)
   #align(left)[
-    #text(font: ("Roboto", "Arial"), size: 20pt, weight: "bold", fill: rgb("#0A3866"))[#upper(title_id)]
-    #if title_en != "" [
-      \
-      #v(4pt)
-      #text(font: ("Roboto", "Arial"), size: 14pt, style: "italic", fill: rgb("#7F8C8D"))[#title_en]
+    #show heading.where(level: 1): set text(
+      size: 20pt,
+      weight: "bold",
+      fill: rgb("#0A3866"),
+    )
+    #heading(level: 1)[
+      #upper(title_id)#if title_en != "" [ \/ #title_en ]
     ]
   ]
-  
+
   #v(1.5cm)
-  
+
   // Key Metric Highlight Card (if provided)
   #if highlight_label != "" and highlight_val != "" [
     #rect(
@@ -47,6 +59,6 @@
       ]
     ]
   ]
-  
+
   #pagebreak()
 ]

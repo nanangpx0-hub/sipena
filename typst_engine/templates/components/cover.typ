@@ -1,4 +1,6 @@
 // BPS Front Cover Component
+#import "state.typ": section-name
+
 #let front-cover(
   title: "",
   year: "",
@@ -7,6 +9,7 @@
   pub_no: "",
   issn: "",
   bg_image_path: "",
+  next_section: "",
 ) = [
   #set page(
     margin: (top: 0cm, bottom: 0cm, left: 0cm, right: 0cm),
@@ -92,5 +95,13 @@
     ]
   ]
 
+  // Nama bagian halaman berikutnya harus diupdate sebelum pagebreak
+  // agar header halaman tersebut sudah membawa nama yang benar.
+  // Penomoran direset ke 0 di akhir cover sehingga halaman pertama
+  // front matter bernomor "i" (romawi).
+  #if next_section != "" [
+    #section-name.update(next_section)
+  ]
+  #counter(page).update(0)
   #pagebreak()
 ]

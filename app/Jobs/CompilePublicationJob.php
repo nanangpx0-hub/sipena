@@ -86,7 +86,7 @@ class CompilePublicationJob implements ShouldQueue
     protected function resolveSkdScores(Publication $pub): array
     {
         if ($pub->type !== 'SKD') {
-            return ['ikk' => '', 'ipak' => ''];
+            return ['ikk' => '', 'ipak' => '', 'mutu' => ''];
         }
 
         $cachePath = storage_path('temp'.DIRECTORY_SEPARATOR.'skd_metrics_cache.json');
@@ -102,7 +102,148 @@ class CompilePublicationJob implements ShouldQueue
         return [
             'ikk' => (string) $cached['ikk_score'],
             'ipak' => (string) ($cached['ipak_score'] ?? '-'),
+            'mutu' => (string) ($cached['mutu_pelayanan'] ?? ''),
         ];
+    }
+
+    /**
+     * Judul Inggris mengikuti pola judul pada publikasi contoh BPS Jember.
+     */
+    protected function englishTitle(Publication $pub, string $districtName): string
+    {
+        $year = (int) $pub->year;
+
+        return match ($pub->type) {
+            'DDA' => "Jember Regency in Figures {$year}",
+            'KDA' => "{$districtName} District in Figures {$year}",
+            default => "Analysis of Data Needs Survey Results BPS {$districtName} {$year}",
+        };
+    }
+
+    /**
+     * Label ukuran buku pada kolofon, disesuaikan dengan kertas yang dipakai template.
+     */
+    protected function bookSizeLabel(Publication $pub): string
+    {
+        if ($pub->type === 'SKD') {
+            return '18,2 cm x 25,7 cm';
+        }
+
+        return match ((string) $pub->book_size) {
+            'A5' => '14,8 cm x 21 cm',
+            'B5' => '17,6 cm x 25 cm',
+            default => (string) $pub->book_size,
+        };
+    }
+
+    /**
+     * Daftar OPD yang berkas mentahnya tercatat pada publikasi ini.
+     *
+     * @return array<int, string>
+     */
+    protected function contributorNames(Publication $pub): array
+    {
+        return $pub->rawDataFiles()
+            ->distinct()
+            ->orderBy('opd_source_name')
+            ->pluck('opd_source_name')
+            ->values()
+            ->all();
+    }
+
+    /**
+     * Tim penyusun diturunkan dari pengguna yang benar-benar terlibat:
+     * pengunggah data mentah dan pelaku riwayat alur kerja publikasi.
+     *
+     * @return array<int, array{role_id: string, role_en: string, names: array<int, string>}>
+     */
+    protected function teamEntries(Publication $pub): array
+    {
+        $ids = $pub->workflowLogs()->pluck('user_id')
+            ->merge($pub->rawDataFiles()->pluck('uploaded_by'))
+            ->unique()
+            ->values();
+
+        if ($ids->isEmpty()) {
+            return [];
+        }
+
+        $users = User::with('role')->whereIn('id', $ids)->get();
+
+        $labels = [
+            'approver' => ['Penanggung Jawab', 'Persons in Charge'],
+            'editor' => ['Penyunting', 'Editors'],
+            'operator' => ['Pengolah Data dan Penulis Naskah', 'Data Processors and Writers'],
+        ];
+
+        $entries = [];
+        foreach (array_keys($labels) as $role) {
+            $names = $users
+                ->filter(fn (User $u) => $u->role?->name === $role)
+                ->pluck('name')
+                ->sort()
+                ->values()
+                ->all();
+
+            if ($names === []) {
+                continue;
+            }
+
+            $entries[] = [
+                'role_id' => $labels[$role][0],
+                'role_en' => $labels[$role][1],
+                'names' => $names,
+            ];
+        }
+
+        return $entries;
+    }
+
+    /**
+     * Serialisasi daftar string menjadi tuple Typst, aman untuk elemen tunggal.
+     *
+     * @param  array<int, string>  $items
+     */
+    protected function typstArray(array $items): string
+    {
+        if ($items === []) {
+            return '()';
+        }
+
+        $inner = implode(', ', $items);
+
+        return count($items) === 1 ? "({$inner},)" : "({$inner})";
+    }
+
+    /**
+     * Serialisasi daftar string (sudah di-escape) menjadi tuple Typst.
+     *
+     * @param  array<int, string>  $values
+     */
+    protected function typstStringTuple(array $values): string
+    {
+        return $this->typstArray(array_map(fn ($v) => '"'.$v.'"', $values));
+    }
+
+    /**
+     * Serialisasi entri tim penyusun menjadi tuple dictionary Typst.
+     *
+     * @param  array<int, array{role_id: string, role_en: string, names: array<int, string>}>  $entries
+     */
+    protected function typstTeamTuple(array $entries): string
+    {
+        $parts = [];
+        foreach ($entries as $entry) {
+            $names = $this->typstStringTuple(array_map(
+                fn ($n) => $this->typstEscape($n),
+                $entry['names'],
+            ));
+            $parts[] = '(role_id: "'.$this->typstEscape($entry['role_id'])
+                .'", role_en: "'.$this->typstEscape($entry['role_en'])
+                .'", names: '.$names.')';
+        }
+
+        return $this->typstArray($parts);
     }
 
     /**
@@ -114,73 +255,97 @@ class CompilePublicationJob implements ShouldQueue
 
         $meta = [
             'title' => $this->typstEscape($pub->title),
+            'title_en' => $this->typstEscape($this->englishTitle($pub, $districtName)),
             'year' => $this->typstEscape((string) $pub->year),
             'volume' => $this->typstEscape((string) $pub->volume),
             'catalog_no' => $this->typstEscape((string) $pub->catalog_number),
             'pub_no' => $this->typstEscape((string) $pub->publication_number),
             'issn' => $this->typstEscape((string) $pub->issn),
             'district_name' => $this->typstEscape($districtName),
+            'book_size' => $this->typstEscape($this->bookSizeLabel($pub)),
         ];
 
+        $contributors = $this->typstStringTuple(array_map(
+            fn ($n) => $this->typstEscape($n),
+            $this->contributorNames($pub),
+        ));
+        $team = $this->typstTeamTuple($this->teamEntries($pub));
+        $hasTables = $pub->tables->isNotEmpty() ? 'true' : 'false';
+        // Halaman kosong di akhir dihindari bila publikasi tanpa bab.
+        $hasBody = $pub->narratives->isNotEmpty() ? 'true' : 'false';
+
+        $preamble = <<<'TYPST'
+#import "/typst_engine/templates/components/divider.typ": chapter-divider
+#import "/typst_engine/templates/components/tables.typ": bps-table
+#import "/typst_engine/templates/components/narrative.typ": narrative-section
+
+TYPST;
+
         if ($pub->type === 'KDA') {
-            $content = <<<TYPST
-#import "/typst_engine/templates/kda_master.typ": kda-document, narrative-section
-#import "/typst_engine/templates/components/divider.typ": chapter-divider
-#import "/typst_engine/templates/components/tables.typ": bps-table
-
-#show: doc => kda-document(
-  title: "{$meta['title']}",
-  year: "{$meta['year']}",
-  volume: "{$meta['volume']}",
-  catalog_no: "{$meta['catalog_no']}",
-  pub_no: "{$meta['pub_no']}",
-  issn: "{$meta['issn']}",
-  district_name: "{$meta['district_name']}",
-  doc,
-)
-
-TYPST;
+            $content = $preamble."#import \"/typst_engine/templates/kda_master.typ\": kda-document\n\n"
+                ."#show: doc => kda-document(\n"
+                ."  title: \"{$meta['title']}\",\n"
+                ."  title_en: \"{$meta['title_en']}\",\n"
+                ."  year: \"{$meta['year']}\",\n"
+                ."  volume: \"{$meta['volume']}\",\n"
+                ."  catalog_no: \"{$meta['catalog_no']}\",\n"
+                ."  pub_no: \"{$meta['pub_no']}\",\n"
+                ."  issn: \"{$meta['issn']}\",\n"
+                ."  district_name: \"{$meta['district_name']}\",\n"
+                ."  book_size: \"{$meta['book_size']}\",\n"
+                ."  contributors: {$contributors},\n"
+                ."  team: {$team},\n"
+                ."  has_tables: {$hasTables},\n"
+                ."  has_body: {$hasBody},\n"
+                ."  doc,\n"
+                .")\n\n";
         } elseif ($pub->type === 'DDA') {
-            $content = <<<TYPST
-#import "/typst_engine/templates/dda_master.typ": dda-document
-#import "/typst_engine/templates/components/divider.typ": chapter-divider
-#import "/typst_engine/templates/components/tables.typ": bps-table
-
-#show: doc => dda-document(
-  title: "{$meta['title']}",
-  year: "{$meta['year']}",
-  volume: "{$meta['volume']}",
-  catalog_no: "{$meta['catalog_no']}",
-  pub_no: "{$meta['pub_no']}",
-  issn: "{$meta['issn']}",
-  doc,
-)
-
-TYPST;
+            $content = $preamble."#import \"/typst_engine/templates/dda_master.typ\": dda-document\n\n"
+                ."#show: doc => dda-document(\n"
+                ."  title: \"{$meta['title']}\",\n"
+                ."  title_en: \"{$meta['title_en']}\",\n"
+                ."  year: \"{$meta['year']}\",\n"
+                ."  volume: \"{$meta['volume']}\",\n"
+                ."  catalog_no: \"{$meta['catalog_no']}\",\n"
+                ."  pub_no: \"{$meta['pub_no']}\",\n"
+                ."  issn: \"{$meta['issn']}\",\n"
+                ."  book_size: \"{$meta['book_size']}\",\n"
+                ."  contributors: {$contributors},\n"
+                ."  team: {$team},\n"
+                ."  has_tables: {$hasTables},\n"
+                ."  has_body: {$hasBody},\n"
+                ."  doc,\n"
+                .")\n\n";
         } else {
             $ikk = $this->typstEscape($skdScores['ikk'] ?? '0');
             $ipak = $this->typstEscape($skdScores['ipak'] ?? '0');
-            $content = <<<TYPST
-#import "/typst_engine/templates/skd_master.typ": skd-document
-#import "/typst_engine/templates/components/divider.typ": chapter-divider
-#import "/typst_engine/templates/components/tables.typ": bps-table
-
-#show: doc => skd-document(
-  title: "{$meta['title']}",
-  year: "{$meta['year']}",
-  volume: "{$meta['volume']}",
-  catalog_no: "{$meta['catalog_no']}",
-  pub_no: "{$meta['pub_no']}",
-  issn: "{$meta['issn']}",
-  ikk_score: "{$ikk}",
-  ipak_score: "{$ipak}",
-  doc,
-)
-
-TYPST;
+            $mutu = $this->typstEscape($skdScores['mutu'] ?? '');
+            $content = $preamble."#import \"/typst_engine/templates/skd_master.typ\": skd-document\n\n"
+                ."#show: doc => skd-document(\n"
+                ."  title: \"{$meta['title']}\",\n"
+                ."  title_en: \"{$meta['title_en']}\",\n"
+                ."  year: \"{$meta['year']}\",\n"
+                ."  volume: \"{$meta['volume']}\",\n"
+                ."  catalog_no: \"{$meta['catalog_no']}\",\n"
+                ."  pub_no: \"{$meta['pub_no']}\",\n"
+                ."  issn: \"{$meta['issn']}\",\n"
+                ."  book_size: \"{$meta['book_size']}\",\n"
+                ."  contributors: {$contributors},\n"
+                ."  team: {$team},\n"
+                ."  has_tables: {$hasTables},\n"
+                ."  ikk_score: \"{$ikk}\",\n"
+                ."  ipak_score: \"{$ipak}\",\n"
+                ."  ikk_mutu: \"{$mutu}\",\n"
+                ."  doc,\n"
+                .")\n\n";
         }
 
         $tablesByChapter = $pub->tables->groupBy('chapter_number');
+
+        // Divider bab pertama tidak memecah halaman: maju sudah dipecah
+        // oleh master template, sehingga bab 1 menempel pada halaman
+        // bernomor arabik "1" tanpa halaman kosong.
+        $firstDivider = true;
 
         foreach ($pub->narratives->sortBy('chapter_number') as $nar) {
             $chapter = (int) $nar->chapter_number;
@@ -198,7 +363,9 @@ TYPST;
                 ."  title_en: \"{$tEn}\",\n"
                 ."  highlight_label: \"{$hlLabel}\",\n"
                 ."  highlight_val: \"{$hlVal}\",\n"
+                .'  first: '.($firstDivider ? 'true' : 'false').",\n"
                 .")\n\n";
+            $firstDivider = false;
 
             $content .= "// Narrative Section\n";
             $content .= "#narrative-section(\n"
