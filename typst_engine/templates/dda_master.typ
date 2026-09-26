@@ -13,7 +13,7 @@
 ) = {
   // Page setup for B5 BPS standard (18.2cm x 25.7cm)
   set document(title: title, author: "BPS Kabupaten Jember")
-  set text(font: ("Roboto", "Liberation Sans", "Arial"), size: 9.5pt, fill: rgb("#2C3E50"))
+  set text(font: ("Roboto", "Arial"), size: 9.5pt, fill: rgb("#2C3E50"))
   set page(
     paper: "iso-b5",
     margin: (inside: 2.5cm, outside: 2.0cm, top: 2.2cm, bottom: 2.2cm),

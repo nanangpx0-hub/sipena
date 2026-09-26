@@ -39,7 +39,10 @@ class TypstCompilerService
         $command = [
             $this->typstBinary,
             'compile',
+            // Font bawaan Windows + font cetak tersimpan di repo agar hasil PDF
+            // konsisten (Roboto) tanpa bergantung pada font terpasang di mesin.
             '--font-path', 'C:\\Windows\\Fonts',
+            '--font-path', base_path('typst_engine'.DIRECTORY_SEPARATOR.'fonts'),
             '--root', base_path(),
             $fullInput,
             $fullOutput,

@@ -47,6 +47,7 @@ C:\laragon\www\sipena\
 │   └── tests\                          # Unit test pytest (python_engine\tests)
 ├── typst_engine\                       # Typesetting Engine
 │   ├── bin\typst.exe                   # Binary compiler Typst
+│   ├── fonts\                          # Font cetak tersimpan di repo (Roboto, OFL)
 │   └── templates\                      # Template master KDA, DDA, SKD
 ├── tests\
 │   ├── Feature\                        # Feature test Laravel (phpunit, sqlite in-memory)
