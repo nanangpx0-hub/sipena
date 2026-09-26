@@ -25,8 +25,32 @@ class District extends Model
         return $this->hasMany(Village::class);
     }
 
+    /**
+     * Seluruh publikasi yang menempel pada kecamatan ini (multi-tahun).
+     */
+    public function publications(): HasMany
+    {
+        return $this->hasMany(Publication::class);
+    }
+
+    /**
+     * Publikasi KDA pada tahun tertentu; null bila tahun itu belum diinisialisasi.
+     */
+    public function publicationForYear(int $year): ?Publication
+    {
+        return $this->publications()
+            ->where('type', 'KDA')
+            ->where('year', $year)
+            ->first();
+    }
+
+    /**
+     * Backward-compatible: publikasi KDA tahun terbaru milik kecamatan ini.
+     */
     public function publication(): HasOne
     {
-        return $this->hasOne(Publication::class);
+        return $this->hasOne(Publication::class)
+            ->where('type', 'KDA')
+            ->latestOfMany('year');
     }
 }

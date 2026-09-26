@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Support\ActiveYear;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +21,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Tahun terbit aktif + daftar tahun tersedia dipakai oleh dropdown
+        // header pada seluruh halaman (layout bersama).
+        View::composer('layouts.app', function ($view) {
+            $view->with([
+                'activeYear' => ActiveYear::get(),
+                'availableYears' => ActiveYear::availableYears(),
+            ]);
+        });
     }
 }

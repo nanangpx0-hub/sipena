@@ -8,6 +8,7 @@ use App\Models\RawDataFile;
 use App\Models\WorkflowLog;
 use App\Services\FuzzyMatchService;
 use App\Services\PythonWorkerService;
+use App\Support\ActiveYear;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -30,10 +31,14 @@ class IngestionController extends Controller
      */
     public function index(Request $request)
     {
-        $publications = Publication::with('district')->orderBy('title')->get();
+        // Dropdown target publikasi hanya menampilkan tahun terbit aktif.
+        $activeYear = ActiveYear::get();
+        $publications = Publication::with('district')
+            ->when($activeYear !== null, fn ($query) => $query->where('year', $activeYear))
+            ->orderBy('title')->get();
         $rawFiles = RawDataFile::with(['publication', 'uploader'])->latest()->paginate(15);
 
-        return view('ingestion.index', compact('publications', 'rawFiles'));
+        return view('ingestion.index', compact('publications', 'rawFiles', 'activeYear'));
     }
 
     /**

@@ -7,12 +7,23 @@
     <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
             <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded uppercase">Publikasi Analisis Tahunan</span>
-            <h1 class="text-xl font-bold text-bps-navy mt-1">Analisis Hasil Survei Kebutuhan Data (SKD) 2026</h1>
+            <h1 class="text-xl font-bold text-bps-navy mt-1">Analisis Hasil Survei Kebutuhan Data (SKD) {{ $selectedYear ?? date('Y') }}</h1>
             <p class="text-xs text-slate-500 mt-0.5">
                 Kalkulasi matriks kuesioner VKD (Blok I, II, III), Indeks Kepuasan Konsumen (IKK), Indeks Persepsi Anti Korupsi (IPAK), dan Diagram Kartesius IPA.
             </p>
         </div>
         <div class="flex items-center space-x-2">
+            @if(count($skdYears ?? []) > 1)
+            <form method="GET" action="{{ route('skd.index') }}" class="flex items-center space-x-1.5">
+                <label for="skd-year" class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Tahun</label>
+                <select name="year" id="skd-year" onchange="this.form.submit()"
+                        class="text-xs font-bold rounded-lg border-slate-300 focus:border-bps-navy p-2 bg-slate-50 text-slate-700">
+                    @foreach($skdYears as $skdYear)
+                        <option value="{{ $skdYear }}" @selected((int) $selectedYear === (int) $skdYear)>{{ $skdYear }}</option>
+                    @endforeach
+                </select>
+            </form>
+            @endif
             <a href="{{ route('compilation.index') }}" class="inline-flex items-center px-4 py-2 bg-bps-navy hover:bg-bps-darknavy text-white text-xs font-bold rounded-lg shadow-sm">
                 Kompilasi PDF SKD &rarr;
             </a>

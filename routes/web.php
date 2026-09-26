@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActiveYearController;
 use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CompilationController;
@@ -26,6 +27,10 @@ Route::middleware('auth')->group(function () {
     // Dashboard Utama (semua peran)
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
+
+    // Sesi Tahun Aktif (multi-tahun): dipilih dari dropdown header.
+    Route::post('/set-active-year', [ActiveYearController::class, 'store'])
+        ->name('active-year.set');
 
     // Tab Cover & Pembatas (lihat: semua peran, unggah: Editor & Approver)
     Route::get('/covers', [DashboardController::class, 'covers'])->name('covers.index');

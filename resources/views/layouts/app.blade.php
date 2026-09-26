@@ -69,6 +69,19 @@
                     </span>
 
                     @auth
+                    @if(!empty($availableYears))
+                    <form method="POST" action="{{ route('active-year.set') }}" class="flex items-center space-x-1.5">
+                        @csrf
+                        <label for="active-year" class="hidden lg:block text-[10px] font-bold uppercase tracking-wider text-slate-300">Tahun Terbit</label>
+                        <select name="year" id="active-year" onchange="this.form.submit()"
+                                class="bg-white/10 border border-white/20 text-white text-xs font-bold rounded-md px-2 py-1.5 focus:border-bps-orange focus:ring focus:ring-bps-orange/40 cursor-pointer">
+                            @foreach($availableYears as $yearOption)
+                                <option value="{{ $yearOption }}" class="text-slate-800" @selected((int) $activeYear === (int) $yearOption)>{{ $yearOption }}</option>
+                            @endforeach
+                        </select>
+                    </form>
+                    @endif
+
                     <div class="flex items-center space-x-2 bg-white/10 rounded-lg pl-2 pr-1 py-1 border border-white/15">
                         <div class="text-right leading-tight hidden sm:block">
                             <p class="text-[11px] font-bold text-white">{{ Auth::user()->name }}</p>

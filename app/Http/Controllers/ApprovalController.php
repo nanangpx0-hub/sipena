@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Publication;
 use App\Services\TypstCompilerService;
+use App\Support\ActiveYear;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -21,11 +22,14 @@ class ApprovalController extends Controller
      */
     public function index(Request $request)
     {
+        $activeYear = ActiveYear::get();
+
         $publications = Publication::with(['district', 'tables', 'narratives', 'rawDataFiles'])
+            ->when($activeYear !== null, fn ($query) => $query->where('year', $activeYear))
             ->orderBy('status')
             ->paginate(15);
 
-        return view('approval.index', compact('publications'));
+        return view('approval.index', compact('publications', 'activeYear'));
     }
 
     /**

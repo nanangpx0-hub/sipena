@@ -89,7 +89,13 @@ class CompilePublicationJob implements ShouldQueue
             return ['ikk' => '', 'ipak' => '', 'mutu' => ''];
         }
 
-        $cachePath = storage_path('temp'.DIRECTORY_SEPARATOR.'skd_metrics_cache.json');
+        // Metrik diisolasi per publikasi agar tahun terbit berbeda tidak tabrakan;
+        // berkas cache lama (tanpa sufiks id) tetap dipakai sebagai fallback.
+        $cachePath = storage_path('temp'.DIRECTORY_SEPARATOR."skd_metrics_{$pub->id}.json");
+        if (! file_exists($cachePath)) {
+            $cachePath = storage_path('temp'.DIRECTORY_SEPARATOR.'skd_metrics_cache.json');
+        }
+
         $cached = file_exists($cachePath) ? json_decode((string) file_get_contents($cachePath), true) : null;
 
         if (! is_array($cached) || ($cached['status'] ?? '') !== 'success' || ! isset($cached['ikk_score'])) {

@@ -6,6 +6,7 @@ use App\Models\District;
 use App\Models\Publication;
 use App\Models\RawDataFile;
 use App\Models\VisualAsset;
+use App\Support\ActiveYear;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -16,12 +17,19 @@ class DashboardController extends Controller
      */
     public function index()
     {
+        $activeYear = ActiveYear::get();
+
         $kdaPublications = Publication::with('district')
             ->where('type', 'KDA')
+            ->when($activeYear !== null, fn ($query) => $query->where('year', $activeYear))
             ->get();
 
-        $dda = Publication::where('type', 'DDA')->latest()->first();
-        $skd = Publication::where('type', 'SKD')->latest()->first();
+        $dda = Publication::where('type', 'DDA')
+            ->when($activeYear !== null, fn ($query) => $query->where('year', $activeYear))
+            ->latest()->first();
+        $skd = Publication::where('type', 'SKD')
+            ->when($activeYear !== null, fn ($query) => $query->where('year', $activeYear))
+            ->latest()->first();
 
         $totalRawFiles = RawDataFile::count();
         $totalDistricts = District::count();
@@ -31,7 +39,9 @@ class DashboardController extends Controller
             ->toArray();
 
         // Target rilis terdekat (KDA hard deadline) — cast aman: value() string vs Carbon.
-        $nearestDeadline = Publication::whereNotNull('hard_deadline')->orderBy('hard_deadline')->first()?->hard_deadline;
+        $nearestDeadline = Publication::whereNotNull('hard_deadline')
+            ->when($activeYear !== null, fn ($query) => $query->where('year', $activeYear))
+            ->orderBy('hard_deadline')->first()?->hard_deadline;
         if (is_string($nearestDeadline)) {
             try {
                 $nearestDeadline = Carbon::parse($nearestDeadline);
@@ -41,6 +51,7 @@ class DashboardController extends Controller
         }
 
         return view('dashboard.index', compact(
+            'activeYear',
             'kdaPublications',
             'dda',
             'skd',

@@ -15,7 +15,7 @@
                     Sistem Penerbitan dan Penataan Angka Daerah
                 </span>
                 <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
-                    Publikasi Daerah BPS Kabupaten Jember 2026
+                    Publikasi Daerah BPS Kabupaten Jember {{ $activeYear ?? date('Y') }}
                 </h1>
                 <p class="text-slate-300 text-sm mt-1 max-w-2xl">
                     Otomasi kompilasi 31 Kecamatan Dalam Angka (KDA), Kabupaten Jember Dalam Angka (DDA), dan Analisis SKD berbasis mesin Typst & Python.
@@ -122,7 +122,7 @@
                     <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded">DDA (Buku Induk)</span>
                     <span class="text-xs text-slate-500">Katalog: {{ $dda?->catalog_number ?? '1102001.3509' }}</span>
                 </div>
-                <h3 class="text-lg font-bold text-bps-navy">{{ $dda?->title ?? 'Kabupaten Jember Dalam Angka 2026' }}</h3>
+                <h3 class="text-lg font-bold text-bps-navy">{{ $dda?->title ?? 'Kabupaten Jember Dalam Angka '.($activeYear ?? date('Y')) }}</h3>
                 <p class="text-xs text-slate-600 mt-1">Buku induk kompilasi 13 bab statistik sektoral dan regional Kabupaten Jember (Format B5).</p>
             </div>
             <div class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
@@ -146,7 +146,7 @@
                     <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded">SKD (Analisis)</span>
                     <span class="text-xs text-slate-500">ISSN: {{ $skd?->issn ?? '2548-8120' }}</span>
                 </div>
-                <h3 class="text-lg font-bold text-bps-navy">{{ $skd?->title ?? 'Analisis Hasil Survei Kebutuhan Data 2026' }}</h3>
+                <h3 class="text-lg font-bold text-bps-navy">{{ $skd?->title ?? 'Analisis Hasil Survei Kebutuhan Data '.($activeYear ?? date('Y')) }}</h3>
                 <p class="text-xs text-slate-600 mt-1">Laporan analitis kepuasan pengguna PST, Indeks IKK & IPAK, serta Diagram Kartesius IPA.</p>
             </div>
             <div class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">

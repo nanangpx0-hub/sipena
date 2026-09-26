@@ -12,6 +12,9 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
+    // Daftarkan kelas perintah artisan (app/Console/Commands) di samping
+    // routes/console.php agar `php artisan sipena:init-year` tersedia.
+    ->withCommands()
     ->withMiddleware(function (Middleware $middleware) {
         // Alias otorisasi RBAC: role:approver,editor
         $middleware->alias([

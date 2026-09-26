@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Jobs\CompilePublicationJob;
 use App\Models\Publication;
 use App\Services\TypstCompilerService;
+use App\Support\ActiveYear;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -63,11 +64,15 @@ class CompilationController extends Controller
     }
 
     /**
-     * Kompilasi Masal Seluruh 31 Kecamatan (KDA)
+     * Kompilasi Masal Seluruh 31 Kecamatan (KDA) pada TAHUN AKTIF saja.
      */
     public function batchCompileAllKDA()
     {
-        $kdaList = Publication::where('type', 'KDA')->get();
+        $activeYear = ActiveYear::get();
+
+        $kdaList = Publication::where('type', 'KDA')
+            ->when($activeYear !== null, fn ($query) => $query->where('year', $activeYear))
+            ->get();
         $count = 0;
 
         foreach ($kdaList as $pub) {
@@ -76,7 +81,7 @@ class CompilationController extends Controller
         }
 
         return redirect()->route('compilation.index')
-            ->with('success', "Berhasil mendispatch {$count} antrean kompilasi KDA ke dalam antrean server!");
+            ->with('success', "Berhasil mendispatch {$count} antrean kompilasi KDA tahun ".($activeYear ?? '-').' ke dalam antrean server!');
     }
 
     /**

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ChapterNarrative;
 use App\Models\Publication;
 use App\Services\NarrativeEngineService;
+use App\Support\ActiveYear;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -22,17 +23,23 @@ class EditorialController extends Controller
      */
     public function index(Request $request)
     {
-        $publications = Publication::with(['district', 'narratives'])->orderBy('title')->get();
+        $activeYear = ActiveYear::get();
+        $publications = Publication::with(['district', 'narratives'])
+            ->when($activeYear !== null, fn ($query) => $query->where('year', $activeYear))
+            ->orderBy('title')->get();
         // SELF-HEAL: default jangan publikasi alfabetis pertama (SKD "Analisis..." tanpa narasi),
         // melainkan publikasi yang MEMILIKI narasi bab agar tombol "Sunting Ulasan" selalu ada.
         $selectedPubId = $request->get('publication_id');
         if (! $selectedPubId) {
-            $withNarratives = Publication::has('narratives')->orderBy('title')->first();
+            $withNarratives = Publication::has('narratives')
+                ->when($activeYear !== null, fn ($query) => $query->where('year', $activeYear))
+                ->orderBy('title')->first();
             $selectedPubId = $withNarratives?->id ?? $publications->first()?->id;
         }
+        // Pemilihan eksplisit (tautan deep-link) tetap dihormati walau di luar tahun aktif.
         $selectedPub = Publication::with(['district', 'narratives'])->find($selectedPubId);
 
-        return view('editorial.index', compact('publications', 'selectedPub'));
+        return view('editorial.index', compact('publications', 'selectedPub', 'activeYear'));
     }
 
     /**

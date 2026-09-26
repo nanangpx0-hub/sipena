@@ -27,8 +27,14 @@ def suite6():
     check("S6.skd_http200", s == 200, "GET /skd -> %s" % s)
     check("S6.ikk", ("Indeks Kepuasan Konsumen" in html or "IKK" in html), "IKK")
     check("S6.ipak", ("Indeks Persepsi Anti Korupsi" in html or "IPAK" in html), "IPAK")
-    svg = os.path.join(ROOT, "storage", "custom_assets", "skd_cartesian.svg")
-    ok = os.path.exists(svg) and os.path.getsize(svg) > 1000
+    # SVG kini diisolasi per publikasi (skd_cartesian_{id}.svg); berkas lama
+    # tanpa sufiks tetap diterima untuk kompatibilitas mundur.
+    svg_dir = os.path.join(ROOT, "storage", "custom_assets")
+    svg_files = [os.path.join(svg_dir, f) for f in os.listdir(svg_dir)] if os.path.isdir(svg_dir) else []
+    svg_files = sorted((f for f in svg_files if os.path.basename(f).startswith("skd_cartesian") and f.endswith(".svg")),
+                       key=os.path.getmtime, reverse=True)
+    svg = next((f for f in svg_files if os.path.getsize(f) > 1000), None)
+    ok = bool(svg)
     check("S6.svg", ("<svg" in html and ok), ("%.1fKB" % (os.path.getsize(svg)/1024)) if ok else "broken")
     check("S6.quadrants", all(("Kuadran " + q) in html for q in ["A", "B", "C", "D"]), "A/B/C/D")
     lamp = html.replace("&amp;", "&")
