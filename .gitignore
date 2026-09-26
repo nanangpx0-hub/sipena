@@ -1,0 +1,31 @@
+/.phpunit.cache
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/vendor
+.env
+.env.backup
+.env.production
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+auth.json
+npm-debug.log
+yarn-error.log
+/.fleet
+/.idea
+/.vscode
+
+# Dependensi runtime Python (diinstal ulang lewat requirements.txt)
+/python_engine/venv
+__pycache__/
+*.py[cod]
+
+# Artefak runtime sistem (PDF, berkas kerja, data mentah OPD, aset hasil render)
+/storage/output_pdf
+/storage/temp
+/storage/raw_excel/*
+/storage/custom_assets/*
+
