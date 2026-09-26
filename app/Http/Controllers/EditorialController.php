@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Publication;
 use App\Models\ChapterNarrative;
+use App\Models\Publication;
 use App\Services\NarrativeEngineService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class EditorialController extends Controller
@@ -26,7 +26,7 @@ class EditorialController extends Controller
         // SELF-HEAL: default jangan publikasi alfabetis pertama (SKD "Analisis..." tanpa narasi),
         // melainkan publikasi yang MEMILIKI narasi bab agar tombol "Sunting Ulasan" selalu ada.
         $selectedPubId = $request->get('publication_id');
-        if (!$selectedPubId) {
+        if (! $selectedPubId) {
             $withNarratives = Publication::has('narratives')->orderBy('title')->first();
             $selectedPubId = $withNarratives?->id ?? $publications->first()?->id;
         }
@@ -41,10 +41,10 @@ class EditorialController extends Controller
     public function edit(int $narrativeId)
     {
         $narrative = ChapterNarrative::with(['publication.district'])->findOrFail($narrativeId);
-        
+
         // Auto-resolve token jika narasi masih kosong
         if (empty($narrative->narrative_id)) {
-            $defaultTemplateId = "Kecamatan {{ nama_kecamatan }} memiliki luas wilayah {{ luas_wilayah }} dengan ibukota di {{ ibukota_kecamatan }}. Pada tahun {{ tahun }}, perkembangan indikator menunjukkan tren yang stabil.";
+            $defaultTemplateId = 'Kecamatan {{ nama_kecamatan }} memiliki luas wilayah {{ luas_wilayah }} dengan ibukota di {{ ibukota_kecamatan }}. Pada tahun {{ tahun }}, perkembangan indikator menunjukkan tren yang stabil.';
             $narrative->narrative_id = $this->narrativeService->resolveTokens($defaultTemplateId, $narrative->publication, $narrative->chapter_number);
         }
 
@@ -103,12 +103,12 @@ class EditorialController extends Controller
                 ->with('warning', "Publikasi sudah berstatus {$pub->status}; tidak perlu diajukan ulang.");
         }
 
-        if (!$pub->canTransitionTo('PENDING_APPROVAL')) {
+        if (! $pub->canTransitionTo('PENDING_APPROVAL')) {
             return redirect()->route('editorial.index', ['publication_id' => $pub->id])
                 ->with('error', "Pengajuan ditolak: status '{$pub->status}' belum memenuhi syarat untuk diajukan ke Approver.");
         }
 
-        $pub->transitionTo('PENDING_APPROVAL', $userId, "Editor mengajukan publikasi ke meja Quality Control & Approval.");
+        $pub->transitionTo('PENDING_APPROVAL', $userId, 'Editor mengajukan publikasi ke meja Quality Control & Approval.');
 
         return redirect()->route('approval.show', $pub->id)
             ->with('success', "Publikasi '{$pub->title}' telah diajukan ke Approver (PENDING_APPROVAL).");

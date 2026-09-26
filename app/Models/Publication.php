@@ -99,7 +99,7 @@ class Publication extends Model
      */
     public function transitionTo(string $target, ?int $userId, string $remarks = ''): bool
     {
-        if (!$this->canTransitionTo($target)) {
+        if (! $this->canTransitionTo($target)) {
             return false;
         }
 

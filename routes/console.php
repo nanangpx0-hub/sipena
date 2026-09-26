@@ -21,14 +21,14 @@ Artisan::command('inspire', function () {
 Artisan::command('sipena:qa-reset', function () {
     $title = 'Publikasi Uji Ingesti QA (Bukan Terbitan Resmi)';
 
-    if (!Schema::hasTable('publications')) {
+    if (! Schema::hasTable('publications')) {
         $this->error('Tabel publications belum tersedia. Jalankan migrate & seed terlebih dahulu.');
 
         return 1;
     }
 
     $pub = DB::table('publications')->where('title', $title)->first();
-    if (!$pub) {
+    if (! $pub) {
         $this->warn("Fixture QA '{$title}' tidak ditemukan. Jalankan: php artisan db:seed --class=QaFixtureSeeder");
 
         return 1;

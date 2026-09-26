@@ -2,9 +2,9 @@
 
 namespace App\Services;
 
-use Symfony\Component\Process\Process;
-use Symfony\Component\Process\Exception\ProcessFailedException;
 use Exception;
+use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
 
 class PythonWorkerService
 {
@@ -13,8 +13,8 @@ class PythonWorkerService
     public function __construct()
     {
         // Safe Windows 11 path resolution
-        $this->pythonPath = base_path('python_engine' . DIRECTORY_SEPARATOR . 'venv' . DIRECTORY_SEPARATOR . 'Scripts' . DIRECTORY_SEPARATOR . 'python.exe');
-        if (!file_exists($this->pythonPath)) {
+        $this->pythonPath = base_path('python_engine'.DIRECTORY_SEPARATOR.'venv'.DIRECTORY_SEPARATOR.'Scripts'.DIRECTORY_SEPARATOR.'python.exe');
+        if (! file_exists($this->pythonPath)) {
             // Fallback to laragon global python if venv not ready
             $this->pythonPath = 'C:\\laragon\\bin\\python\\python-3.10\\python.exe';
         }
@@ -26,7 +26,7 @@ class PythonWorkerService
     public function execute(string $scriptPath, array $args = [], int $timeout = 60): array
     {
         $fullScriptPath = base_path(str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $scriptPath));
-        if (!file_exists($fullScriptPath)) {
+        if (! file_exists($fullScriptPath)) {
             throw new Exception("Skrip Python tidak ditemukan di: {$fullScriptPath}");
         }
 
@@ -36,16 +36,16 @@ class PythonWorkerService
         $serverEnv = array_merge($_ENV ?? [], $_SERVER ?? []);
         // getenv() associative array as fallback source
         if (function_exists('getenv')) {
-            foreach (['PATH','PATHEXT','SYSTEMROOT','WINDIR','SYSTEMDRIVE','COMSPEC','OS','TEMP','TMP','USERPROFILE','HOMEDRIVE','HOMEPATH','HOME','USERNAME','LANG','SYSTEMENCODING'] as $k) {
+            foreach (['PATH', 'PATHEXT', 'SYSTEMROOT', 'WINDIR', 'SYSTEMDRIVE', 'COMSPEC', 'OS', 'TEMP', 'TMP', 'USERPROFILE', 'HOMEDRIVE', 'HOMEPATH', 'HOME', 'USERNAME', 'LANG', 'SYSTEMENCODING'] as $k) {
                 $v = getenv($k);
-                if ($v !== false && $v !== '' && !isset($serverEnv[$k])) {
+                if ($v !== false && $v !== '' && ! isset($serverEnv[$k])) {
                     $serverEnv[$k] = $v;
                 }
             }
         }
         $homeDrive = $serverEnv['HOMEDRIVE'] ?? 'C:';
         $homePath = $serverEnv['HOMEPATH'] ?? '\\Users\\Default';
-        $userProfile = $serverEnv['USERPROFILE'] ?? ($homeDrive . $homePath);
+        $userProfile = $serverEnv['USERPROFILE'] ?? ($homeDrive.$homePath);
         if (empty($userProfile)) {
             $userProfile = 'C:\\Windows\\Temp';
         }
@@ -55,9 +55,9 @@ class PythonWorkerService
             'SYSTEMROOT' => $systemRoot,
             'WINDIR' => $serverEnv['WINDIR'] ?? $systemRoot,
             'SYSTEMDRIVE' => $serverEnv['SYSTEMDRIVE'] ?? 'C:',
-            'COMSPEC' => $serverEnv['COMSPEC'] ?? $systemRoot . '\\system32\\cmd.exe',
+            'COMSPEC' => $serverEnv['COMSPEC'] ?? $systemRoot.'\\system32\\cmd.exe',
             'OS' => $serverEnv['OS'] ?? 'Windows_NT',
-            'PATH' => $serverEnv['PATH'] ?? ($systemRoot . '\\system32;' . $systemRoot),
+            'PATH' => $serverEnv['PATH'] ?? ($systemRoot.'\\system32;'.$systemRoot),
             'PATHEXT' => $serverEnv['PATHEXT'] ?? '.COM;.EXE;.BAT;.CMD;.VBS;.JS;.WS;.MSC;.PY;.PYW',
             'TEMP' => $tmpDir,
             'TMP' => $tmpDir,
@@ -76,14 +76,14 @@ class PythonWorkerService
 
         $process->run();
 
-        if (!$process->isSuccessful()) {
+        if (! $process->isSuccessful()) {
             throw new ProcessFailedException($process);
         }
 
         $output = trim($process->getOutput());
-        
+
         // Strip any matplotlib font building warning if present
-        if (str_contains($output, '{') && !str_starts_with($output, '{')) {
+        if (str_contains($output, '{') && ! str_starts_with($output, '{')) {
             $jsonStart = strpos($output, '{');
             $output = substr($output, $jsonStart);
         }
@@ -104,7 +104,7 @@ class PythonWorkerService
      */
     public function cleanExcel(string $excelPath, string|int $sheet = 0): array
     {
-        return $this->execute('python_engine/parsers/generic_cleaner.py', [$excelPath, '--sheet', (string)$sheet]);
+        return $this->execute('python_engine/parsers/generic_cleaner.py', [$excelPath, '--sheet', (string) $sheet]);
     }
 
     /**
@@ -113,6 +113,7 @@ class PythonWorkerService
     public function aggregateSchools(string $excelPath, string $level = 'kecamatan'): array
     {
         $level = strtolower(trim($level)) === 'desa' ? 'desa' : 'kecamatan';
+
         return $this->execute('python_engine/parsers/individual_aggregator.py', [$excelPath, '--level', $level]);
     }
 
@@ -130,6 +131,7 @@ class PythonWorkerService
             $args[] = '--output-svg';
             $args[] = $outputSvg;
         }
+
         return $this->execute('python_engine/calculators/skd_engine.py', $args);
     }
 
@@ -141,7 +143,7 @@ class PythonWorkerService
         return $this->execute('python_engine/visualizers/population_pyramid.py', [
             '--output', $outputSvg,
             '--district', $district,
-            '--year', (string)$year,
+            '--year', (string) $year,
         ]);
     }
 
@@ -153,7 +155,7 @@ class PythonWorkerService
         return $this->execute('python_engine/visualizers/climate_chart.py', [
             '--output', $outputSvg,
             '--district', $district,
-            '--year', (string)$year,
+            '--year', (string) $year,
         ]);
     }
 }

@@ -35,7 +35,7 @@
                     <select name="publication_id" required class="w-full text-xs rounded-lg border-slate-300 focus:border-bps-navy focus:ring focus:ring-bps-navy/20 p-2.5 bg-slate-50">
                         <option value="">-- Pilih Buku Publikasi --</option>
                         @foreach($publications as $pub)
-                            <option value="{{ $pub->id }}">{{ $pub->title }} [{{ $pub->type }} - {{ $pub->year }}]</option>
+                            <option value="{{ $pub->id }}">{{ $pub->title }} [{{ $pub->type }} - {{ $pub->year }}]{{ $pub->isLocked() ? ' - TERKUNCI (' . $pub->status . ')' : '' }}</option>
                         @endforeach
                     </select>
                 </div>

@@ -59,6 +59,7 @@ class User extends Authenticatable
         if (is_array($roles)) {
             return in_array($this->role?->name, $roles);
         }
+
         return $this->role?->name === $roles;
     }
 }

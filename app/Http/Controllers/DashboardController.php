@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Publication;
 use App\Models\District;
+use App\Models\Publication;
 use App\Models\RawDataFile;
-use App\Models\ChapterNarrative;
+use App\Models\VisualAsset;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
@@ -32,7 +33,11 @@ class DashboardController extends Controller
         // Target rilis terdekat (KDA hard deadline) — cast aman: value() string vs Carbon.
         $nearestDeadline = Publication::whereNotNull('hard_deadline')->orderBy('hard_deadline')->first()?->hard_deadline;
         if (is_string($nearestDeadline)) {
-            try { $nearestDeadline = \Carbon\Carbon::parse($nearestDeadline); } catch (\Throwable $e) { $nearestDeadline = null; }
+            try {
+                $nearestDeadline = Carbon::parse($nearestDeadline);
+            } catch (\Throwable $e) {
+                $nearestDeadline = null;
+            }
         }
 
         return view('dashboard.index', compact(
@@ -83,13 +88,15 @@ class DashboardController extends Controller
         }
 
         $file = $request->file('cover_image');
-        $dir = storage_path('app' . DIRECTORY_SEPARATOR . 'private' . DIRECTORY_SEPARATOR . 'custom_assets');
-        if (!is_dir($dir)) mkdir($dir, 0755, true);
-        $fname = 'cover_custom_' . $pub->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+        $dir = storage_path('app'.DIRECTORY_SEPARATOR.'private'.DIRECTORY_SEPARATOR.'custom_assets');
+        if (! is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
+        $fname = 'cover_custom_'.$pub->id.'_'.time().'.'.$file->getClientOriginalExtension();
         $file->move($dir, $fname);
         $relPath = "storage/app/private/custom_assets/{$fname}";
 
-        \App\Models\VisualAsset::create([
+        VisualAsset::create([
             'publication_id' => $pub->id,
             'asset_type' => 'COVER_CUSTOM',
             'mode' => 'MANUAL_OVERRIDE',

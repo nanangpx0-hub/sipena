@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Publication;
 use App\Services\PythonWorkerService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class SkdController extends Controller
@@ -36,7 +36,7 @@ class SkdController extends Controller
             $svgFull = base_path(str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $svgPath));
             $cacheFresh = file_exists($metricsPath)
                 && (time() - filemtime($metricsPath) < 86400)
-                && (!file_exists($svgFull) || filemtime($metricsPath) >= filemtime($svgFull) - 5);
+                && (! file_exists($svgFull) || filemtime($metricsPath) >= filemtime($svgFull) - 5);
 
             if ($cacheFresh) {
                 $cached = json_decode((string) file_get_contents($metricsPath), true);
@@ -56,8 +56,8 @@ class SkdController extends Controller
                 }
             }
         } catch (\Throwable $e) {
-            $errorMessage = 'Mesin SKD tidak dapat dijalankan: ' . $e->getMessage();
-            Log::warning('Mesin SKD tidak dapat dijalankan: ' . $e->getMessage());
+            $errorMessage = 'Mesin SKD tidak dapat dijalankan: '.$e->getMessage();
+            Log::warning('Mesin SKD tidak dapat dijalankan: '.$e->getMessage());
         }
 
         return view('skd.index', [
@@ -79,27 +79,27 @@ class SkdController extends Controller
 
         $file = $request->file('vkd_file');
         $tempDir = storage_path('temp');
-        if (!is_dir($tempDir)) {
+        if (! is_dir($tempDir)) {
             mkdir($tempDir, 0755, true);
         }
-        $file->move($tempDir, 'uploaded_vkd.' . $file->getClientOriginalExtension());
-        $tempPath = $tempDir . DIRECTORY_SEPARATOR . 'uploaded_vkd.' . $file->getClientOriginalExtension();
+        $file->move($tempDir, 'uploaded_vkd.'.$file->getClientOriginalExtension());
+        $tempPath = $tempDir.DIRECTORY_SEPARATOR.'uploaded_vkd.'.$file->getClientOriginalExtension();
 
         $svgPath = 'storage/custom_assets/skd_cartesian.svg';
-        $svgAbs = base_path('storage' . DIRECTORY_SEPARATOR . 'custom_assets' . DIRECTORY_SEPARATOR . 'skd_cartesian.svg');
+        $svgAbs = base_path('storage'.DIRECTORY_SEPARATOR.'custom_assets'.DIRECTORY_SEPARATOR.'skd_cartesian.svg');
 
         try {
             $metrics = $this->pythonService->runSkdEngine($tempPath, $svgAbs);
         } catch (\Throwable $e) {
-            Log::warning('Unggahan SKD gagal: ' . $e->getMessage());
+            Log::warning('Unggahan SKD gagal: '.$e->getMessage());
 
-            return redirect()->route('skd.index')->with('error', 'Pemrosesan berkas VKD gagal: ' . $e->getMessage());
+            return redirect()->route('skd.index')->with('error', 'Pemrosesan berkas VKD gagal: '.$e->getMessage());
         }
 
         if (($metrics['status'] ?? '') !== 'success') {
             return redirect()->route('skd.index')->with(
                 'error',
-                'Berkas VKD ditolak: ' . ($metrics['message'] ?? 'format kolom tidak dikenali.')
+                'Berkas VKD ditolak: '.($metrics['message'] ?? 'format kolom tidak dikenali.')
             );
         }
 

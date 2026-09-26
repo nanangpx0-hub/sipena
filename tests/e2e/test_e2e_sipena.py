@@ -2,10 +2,26 @@
 import os, re, sys, time, json, base64
 from datetime import datetime
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from e2e_part1 import get, req, csrf, check, results, ART, ROOT, BASE
+from e2e_part1 import get, req, csrf, check, login_as, make_vkd_xlsx, results, ART, ROOT, BASE
 from e2e_part2 import suite1, suite2, suite3
 from e2e_part3 import suite4, suite5
 def suite6():
+    check("S6.login_operator", login_as("operator"), "sesi operator")
+    s, h, b, u = get("/skd", timeout=120)
+    html = b.decode("utf-8", "ignore")
+    # Pastikan metrik SKD sah tersedia: unggah berkas VKD bila halaman masih kosong.
+    if ("Belum ada hasil SKD yang sah" in html) or ("Indeks Kepuasan Konsumen" in html and "svg" not in html.lower()):
+        token = csrf(b)
+        vkd = make_vkd_xlsx(os.path.join(ROOT, "storage", "temp", "vkd_uji.xlsx"))
+        with open(vkd, "rb") as f:
+            fx = f.read()
+        su, hu, bu, _ = req("POST", "/skd/upload", data={"_token": token},
+                            files={"vkd_file": ("vkd_uji.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fx)},
+                            timeout=180)
+        check("S6.skd_upload", su in (200, 302), "POST /skd/upload -> %s" % su)
+        s, h, b, u = get("/skd", timeout=120)
+        html = b.decode("utf-8", "ignore")
+    check("S6.login_viewer", login_as("viewer"), "sesi viewer")
     s, h, b, u = get("/skd", timeout=120)
     html = b.decode("utf-8", "ignore")
     check("S6.skd_http200", s == 200, "GET /skd -> %s" % s)
@@ -19,6 +35,7 @@ def suite6():
     # SELF-HEAL note: judul "Lampiran 14 & 15" live di <h2> + komentar; cocokkan longgar.
     check("S6.lampiran", (("Lampiran 14" in lamp) and (("Lampiran 15" in lamp) or ("15 SKD" in lamp))), "Lamp 14&15")
 def suite7():
+    check("S7.login_approver", login_as("approver"), "sesi approver")
     s, h, b, u = get("/covers")
     html = b.decode("utf-8", "ignore")
     check("S7.covers_http200", s == 200, "GET /covers -> %s" % s)

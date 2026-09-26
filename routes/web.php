@@ -1,13 +1,13 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\IngestionController;
-use App\Http\Controllers\EditorialController;
 use App\Http\Controllers\ApprovalController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CompilationController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EditorialController;
+use App\Http\Controllers\IngestionController;
 use App\Http\Controllers\SkdController;
+use Illuminate\Support\Facades\Route;
 
 // ---------------------------------------------------------------------------
 // Autentikasi (tamatan & undangan sesi)

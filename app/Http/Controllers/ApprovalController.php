@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Publication;
 use App\Services\TypstCompilerService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class ApprovalController extends Controller
@@ -47,7 +47,7 @@ class ApprovalController extends Controller
         $publication = Publication::findOrFail($id);
         $userId = Auth::id();
 
-        if (!$publication->canTransitionTo('APPROVED_LOCKED')) {
+        if (! $publication->canTransitionTo('APPROVED_LOCKED')) {
             return redirect()->route('approval.index')->with('error', "Persetujuan ditolak: status '{$publication->status}' tidak mengizinkan transisi ke APPROVED_LOCKED.");
         }
 
@@ -73,11 +73,11 @@ class ApprovalController extends Controller
         $publication = Publication::findOrFail($id);
         $userId = Auth::id();
 
-        if (!$publication->canTransitionTo('IN_EDITORIAL')) {
+        if (! $publication->canTransitionTo('IN_EDITORIAL')) {
             return redirect()->route('approval.index')->with('error', "Penolakan ditolak: status '{$publication->status}' tidak mengizinkan pengembalian ke IN_EDITORIAL.");
         }
 
-        $publication->transitionTo('IN_EDITORIAL', $userId, '[REVISI DIBUTUHKAN]: ' . $request->remarks);
+        $publication->transitionTo('IN_EDITORIAL', $userId, '[REVISI DIBUTUHKAN]: '.$request->remarks);
 
         return redirect()->route('approval.index')
             ->with('warning', "Publikasi '{$publication->title}' dikembalikan untuk perbaikan revisi.");

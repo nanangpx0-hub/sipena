@@ -15,7 +15,7 @@
             <select name="publication_id" onchange="this.form.submit()" class="text-xs rounded-lg border-slate-300 focus:border-bps-navy p-2 bg-slate-50 font-semibold text-slate-700">
                 @foreach($publications as $pub)
                     <option value="{{ $pub->id }}" {{ $selectedPub?->id == $pub->id ? 'selected' : '' }}>
-                        {{ $pub->title }}
+                        {{ $pub->title }}{{ $pub->isLocked() ? ' - TERKUNCI (' . $pub->status . ')' : '' }}
                     </option>
                 @endforeach
             </select>

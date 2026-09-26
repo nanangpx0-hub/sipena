@@ -62,6 +62,57 @@ def check(name, cond, detail=""):
     results.append((name, bool(cond), detail))
     print(("PASS " if cond else "FAIL ") + name + ((" :: " + detail) if detail else ""), flush=True)
     return bool(cond)
+
+ACCOUNTS = {
+    "operator": ("operator@bps3509.go.id", "Operator Data"),
+    "editor": ("editor@bps3509.go.id", "Editor Bahasa"),
+    "approver": ("approver@bps3509.go.id", "Ketua Tim"),
+    "viewer": ("viewer@bps3509.go.id", "Pimpinan"),
+}
+PASSWORD = os.environ.get("SIENA_E2E_PASSWORD", "password123")
+
+def make_vkd_xlsx(path):
+    """Berkas kuesioner VKD 12 atribut (U1-U12, kolom _X dan _Y) untuk uji engine SKD."""
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    import xml.sax.saxutils as sx
+    codes = ["U%d" % i for i in range(1, 13)]
+    hdr = [c + "_X" for c in codes] + [c + "_Y" for c in codes]
+    def cell(v):
+        return '<c t="inlineStr"><is><t>%s</t></is></c>' % sx.escape(str(v))
+    def row(vals):
+        return "<row>" + "".join(cell(v) for v in vals) + "</row>"
+    srows = row(hdr)
+    for i in range(40):
+        vals = [3 + (1 if (i + j) % 3 else 0) for j in range(24)]
+        srows += row(vals)
+    with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as z:
+        z.writestr("[Content_Types].xml", '<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>')
+        z.writestr("_rels/.rels", '<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>')
+        z.writestr("xl/workbook.xml", '<?xml version="1.0"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="VKD" sheetId="1" r:id="rId1"/></sheets></workbook>')
+        z.writestr("xl/_rels/workbook.xml.rels", '<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>')
+        z.writestr("xl/worksheets/sheet1.xml", '<?xml version="1.0"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>' + srows + "</sheetData></worksheet>")
+    return path
+
+def login_as(role="operator"):
+    """Pastikan sesi E2E berada pada peran tertentu (logout -> login -> verifikasi peran)."""
+    s0, _, b0, _ = get("/dashboard", timeout=60)
+    if s0 == 200:  # sesi lama masih aktif -> keluar dulu
+        token0 = csrf(b0)
+        if token0:
+            req("POST", "/logout", data={"_token": token0}, timeout=60)
+
+    s, _, b, _ = get("/login", timeout=60)
+    if s != 200:
+        return False
+    token = csrf(b)
+    email, role_label = ACCOUNTS.get(role, (ACCOUNTS["operator"][0], ACCOUNTS["operator"][1]))
+    if not token:
+        return False
+    req("POST", "/login", data={"_token": token, "email": email, "password": PASSWORD}, timeout=60)
+
+    s2, _, b2, _ = get("/dashboard", timeout=60)
+    html = b2.decode("utf-8", "ignore") if s2 == 200 else ""
+    return s2 == 200 and role_label in html
 def make_dummy_xlsx(path):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     hdrs = ["Kecamatan", "Desa", "Guru", "Murid"]

@@ -34,7 +34,7 @@ Sistem dibangun dengan arsitektur **Monolit Modular Terisolasi (*Modular Monolit
 │             │                                            │                    │
 │             ▼ (CLI Exec)                                 ▼ (CLI Exec)         │
 │  [Python 3.11+ Worker Engine]                 [Typst Standalone Compiler]     │
-│  • C:\bps_engine\python\venv\Scripts\         • C:\bps_engine\typst.exe       │
+│  • python_engine\venv\Scripts\python.exe   • typst_engine\bin\typst.exe       │
 │  • Pandas / OpenPyXL (Pembersih Excel OPD)     • Master Layout Engine A5 / B5 │
 │  • Agregator Baris Individu (Dapodik/EMIS)    • Generator Cover & Divider     │
 │  • Kalkulator Matriks VKD (IKK, IPAK, Gap)    • Output: PDF Cetak & Web       │
@@ -45,7 +45,7 @@ Sistem dibangun dengan arsitektur **Monolit Modular Terisolasi (*Modular Monolit
 │  • JSON Datatype Support untuk skema pemetaan fleksibel                       │
 │                                                                               │
 │  [Sistem Berkas Windows (NTFS Storage)]                                       │
-│  • C:\bps_publikasi\storage\raw_excel\ (Arsip Audit Versioning SHA-256)       │
-│  • C:\bps_publikasi\storage\custom_assets\ (Cover & Peta Kustom Manual)       │
-│  • C:\bps_publikasi\storage\output_pdf\ (Hasil Kompilasi PDF Final/Draft)     │
+│  • storage\app\private\raw_excel\ (Arsip Audit Versioning SHA-256)            │
+│  • storage\app\private\custom_assets\ (Cover & Peta Kustom Manual)            │
+│  • storage\output_pdf\ (Hasil Kompilasi PDF Final/Draft)                      │
 └───────────────────────────────────────────────────────────────────────────────┘

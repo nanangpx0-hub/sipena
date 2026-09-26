@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Publication;
-use App\Models\RawDataFile;
 use App\Models\PublicationTable;
+use App\Models\RawDataFile;
 use App\Models\WorkflowLog;
-use App\Services\PythonWorkerService;
 use App\Services\FuzzyMatchService;
+use App\Services\PythonWorkerService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -16,6 +16,7 @@ use Illuminate\Support\Str;
 class IngestionController extends Controller
 {
     protected PythonWorkerService $pythonService;
+
     protected FuzzyMatchService $fuzzyService;
 
     public function __construct(PythonWorkerService $pythonService, FuzzyMatchService $fuzzyService)
@@ -72,17 +73,17 @@ class IngestionController extends Controller
         // sehingga file tidak ditemukan. Sekarang konsisten memakai storage/app/private.
         $safeAgency = Str::slug($request->opd_source_name);
         $timestamp = now()->format('Ymd_His');
-        $safeFilename = "{$timestamp}_v{$versionNumber}_" . Str::slug(pathinfo($originalFilename, PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
+        $safeFilename = "{$timestamp}_v{$versionNumber}_".Str::slug(pathinfo($originalFilename, PATHINFO_FILENAME)).'.'.$file->getClientOriginalExtension();
         $relativeDir = "raw_excel/{$pub->year}/{$safeAgency}";
 
-        $fullDirPath = storage_path('app' . DIRECTORY_SEPARATOR . 'private' . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $relativeDir));
-        if (!is_dir($fullDirPath)) {
+        $fullDirPath = storage_path('app'.DIRECTORY_SEPARATOR.'private'.DIRECTORY_SEPARATOR.str_replace('/', DIRECTORY_SEPARATOR, $relativeDir));
+        if (! is_dir($fullDirPath)) {
             mkdir($fullDirPath, 0755, true);
         }
 
         $file->move($fullDirPath, $safeFilename);
         // Path absolut dipakai Python; kolom storage_path menyimpan path relatif utk audit.
-        $absoluteSavedPath = $fullDirPath . DIRECTORY_SEPARATOR . $safeFilename;
+        $absoluteSavedPath = $fullDirPath.DIRECTORY_SEPARATOR.$safeFilename;
         $savedPath = "storage/app/private/{$relativeDir}/{$safeFilename}";
 
         $userId = Auth::id();
@@ -107,19 +108,22 @@ class IngestionController extends Controller
         try {
             // Resolve ke path absolut yang benar sesuai lokasi penyimpanan aktual.
             $pythonInputPath = $absoluteSavedPath;
-            if (!file_exists($pythonInputPath)) {
+            if (! file_exists($pythonInputPath)) {
                 $candidates = [
                     base_path(str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $savedPath)),
-                    storage_path(str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $relativeDir) . DIRECTORY_SEPARATOR . $safeFilename),
+                    storage_path(str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $relativeDir).DIRECTORY_SEPARATOR.$safeFilename),
                 ];
                 foreach ($candidates as $cand) {
-                    if (file_exists($cand)) { $pythonInputPath = $cand; break; }
+                    if (file_exists($cand)) {
+                        $pythonInputPath = $cand;
+                        break;
+                    }
                 }
             }
             if ($request->data_mode === 'AGGREGATE_SCHOOL') {
                 $cleanedData = $this->pythonService->aggregateSchools($pythonInputPath, $pub->type === 'KDA' ? 'desa' : 'kecamatan');
             } elseif ($request->data_mode === 'SKD_VKD') {
-                $outputSvgAbs = base_path('storage' . DIRECTORY_SEPARATOR . 'custom_assets' . DIRECTORY_SEPARATOR . "skd_cartesian_{$pub->id}.svg");
+                $outputSvgAbs = base_path('storage'.DIRECTORY_SEPARATOR.'custom_assets'.DIRECTORY_SEPARATOR."skd_cartesian_{$pub->id}.svg");
                 $cleanedData = $this->pythonService->runSkdEngine($pythonInputPath, $outputSvgAbs);
             } else {
                 $cleanedData = $this->pythonService->cleanExcel($pythonInputPath);
@@ -132,17 +136,17 @@ class IngestionController extends Controller
             if ($workerStatus !== 'success') {
                 $rawFileRecord->update([
                     'status' => 'FAILED',
-                    'notes' => trim(($request->notes ? $request->notes . ' | ' : '') . 'Ekstraksi gagal: ' . ($cleanedData['message'] ?? 'output worker tidak valid')),
+                    'notes' => trim(($request->notes ? $request->notes.' | ' : '').'Ekstraksi gagal: '.($cleanedData['message'] ?? 'output worker tidak valid')),
                 ]);
                 WorkflowLog::create([
                     'publication_id' => $pub->id,
                     'from_status' => $pub->status,
                     'to_status' => $pub->status,
                     'user_id' => $userId,
-                    'remarks' => "Ekstraksi Python GAGAL untuk {$originalFilename}: " . ($cleanedData['message'] ?? 'output tidak valid'),
+                    'remarks' => "Ekstraksi Python GAGAL untuk {$originalFilename}: ".($cleanedData['message'] ?? 'output tidak valid'),
                 ]);
 
-                return redirect()->back()->with('error', "Berkas '{$originalFilename}' tersimpan (v{$versionNumber}) tetapi ekstraksi Python GAGAL: " . ($cleanedData['message'] ?? 'output worker tidak valid') . ' Perbaiki berkas lalu unggah ulang.');
+                return redirect()->back()->with('error', "Berkas '{$originalFilename}' tersimpan (v{$versionNumber}) tetapi ekstraksi Python GAGAL: ".($cleanedData['message'] ?? 'output worker tidak valid').' Perbaiki berkas lalu unggah ulang.');
             }
 
             // Simpan ke PublicationTable
@@ -173,7 +177,7 @@ class IngestionController extends Controller
 
             return redirect()->back()->with('success', "Berkas '{$originalFilename}' berhasil diunggah (v{$versionNumber}) dan data berhasil diekstraksi ke database!");
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', "Unggah berhasil namun ekstraksi Python mengalami kendala: " . $e->getMessage());
+            return redirect()->back()->with('error', 'Unggah berhasil namun ekstraksi Python mengalami kendala: '.$e->getMessage());
         }
     }
 }

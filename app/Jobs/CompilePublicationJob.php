@@ -2,15 +2,16 @@
 
 namespace App\Jobs;
 
+use App\Models\Publication;
+use App\Models\PublicationTable;
+use App\Models\User;
+use App\Models\WorkflowLog;
+use App\Services\TypstCompilerService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use App\Models\Publication;
-use App\Models\PublicationTable;
-use App\Models\WorkflowLog;
-use App\Services\TypstCompilerService;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
@@ -19,11 +20,14 @@ class CompilePublicationJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public int $publicationId;
+
     public ?int $userId;
+
     public int $timeout = 300;
 
     /** Batas tampil data tabel dalam PDF agar halaman tetap terkontrol. */
     private const MAX_TABLE_COLUMNS = 8;
+
     private const MAX_TABLE_ROWS = 40;
 
     public function __construct(int $publicationId, ?int $userId = null)
@@ -40,11 +44,11 @@ class CompilePublicationJob implements ShouldQueue
         $pub = Publication::with(['district', 'narratives', 'tables'])->findOrFail($this->publicationId);
 
         $tempDir = storage_path('temp');
-        $outputDir = storage_path('output_pdf' . DIRECTORY_SEPARATOR . $pub->year);
-        if (!is_dir($tempDir)) {
+        $outputDir = storage_path('output_pdf'.DIRECTORY_SEPARATOR.$pub->year);
+        if (! is_dir($tempDir)) {
             mkdir($tempDir, 0755, true);
         }
-        if (!is_dir($outputDir)) {
+        if (! is_dir($outputDir)) {
             mkdir($outputDir, 0755, true);
         }
 
@@ -58,8 +62,8 @@ class CompilePublicationJob implements ShouldQueue
 
         $result = $typstService->compile($inputTypPath, $outputPdfRelPath, 180);
 
-        $userId = $this->userId ?? \App\Models\User::orderBy('id')->value('id');
-        $sizeLabel = round($result['file_size_bytes'] / 1024, 2) . ' KB';
+        $userId = $this->userId ?? User::orderBy('id')->value('id');
+        $sizeLabel = round($result['file_size_bytes'] / 1024, 2).' KB';
 
         // Transisi status hanya jika state machine mengizinkan; selain itu tetap DRAF.
         if ($pub->canTransitionTo('FINAL_RELEASED')) {
@@ -85,13 +89,13 @@ class CompilePublicationJob implements ShouldQueue
             return ['ikk' => '', 'ipak' => ''];
         }
 
-        $cachePath = storage_path('temp' . DIRECTORY_SEPARATOR . 'skd_metrics_cache.json');
+        $cachePath = storage_path('temp'.DIRECTORY_SEPARATOR.'skd_metrics_cache.json');
         $cached = file_exists($cachePath) ? json_decode((string) file_get_contents($cachePath), true) : null;
 
-        if (!is_array($cached) || ($cached['status'] ?? '') !== 'success' || !isset($cached['ikk_score'])) {
+        if (! is_array($cached) || ($cached['status'] ?? '') !== 'success' || ! isset($cached['ikk_score'])) {
             throw new \RuntimeException(
                 'Kompilasi SKD dibatalkan: metrik IKK/IPAK sah belum tersedia. '
-                . 'Unggah berkas kuesioner VKD melalui modul Analisis SKD terlebih dahulu.'
+                .'Unggah berkas kuesioner VKD melalui modul Analisis SKD terlebih dahulu.'
             );
         }
 
@@ -189,20 +193,20 @@ TYPST;
 
             $content .= "\n// Chapter {$chapter} Divider\n";
             $content .= "#chapter-divider(\n"
-                . "  chapter_no: {$chapter},\n"
-                . "  title_id: \"{$tId}\",\n"
-                . "  title_en: \"{$tEn}\",\n"
-                . "  highlight_label: \"{$hlLabel}\",\n"
-                . "  highlight_val: \"{$hlVal}\",\n"
-                . ")\n\n";
+                ."  chapter_no: {$chapter},\n"
+                ."  title_id: \"{$tId}\",\n"
+                ."  title_en: \"{$tEn}\",\n"
+                ."  highlight_label: \"{$hlLabel}\",\n"
+                ."  highlight_val: \"{$hlVal}\",\n"
+                .")\n\n";
 
             $content .= "// Narrative Section\n";
             $content .= "#narrative-section(\n"
-                . "  \"{$tId}\",\n"
-                . "  \"{$tEn}\",\n"
-                . "  \"{$nId}\",\n"
-                . "  \"{$nEn}\",\n"
-                . ")\n\n";
+                ."  \"{$tId}\",\n"
+                ."  \"{$tEn}\",\n"
+                ."  \"{$nId}\",\n"
+                ."  \"{$nEn}\",\n"
+                .")\n\n";
 
             // Tabel DATA NYATA hasil ingest (bukan placeholder sistem).
             foreach ($tablesByChapter->get($chapter, collect()) as $table) {
@@ -220,7 +224,7 @@ TYPST;
     protected function buildTypsTable(PublicationTable $table, string $districtName): string
     {
         $data = $table->table_data;
-        if (!is_array($data)) {
+        if (! is_array($data)) {
             return '';
         }
 
@@ -236,14 +240,14 @@ TYPST;
         $rows = array_slice($rows, 0, self::MAX_TABLE_ROWS);
 
         $width = rtrim(rtrim(number_format(100 / max($colCount, 1), 2, '.', ''), '0'), '.');
-        $colWidths = '(' . implode(', ', array_fill(0, $colCount, "{$width}fr")) . ')';
+        $colWidths = '('.implode(', ', array_fill(0, $colCount, "{$width}fr")).')';
 
-        $headersId = array_map(fn ($h) => '"' . $this->typstEscape((string) $h) . '"', $headers);
+        $headersId = array_map(fn ($h) => '"'.$this->typstEscape((string) $h).'"', $headers);
         $headersEn = $headersId;
 
         $cells = [];
         foreach ($rows as $row) {
-            if (!is_array($row)) {
+            if (! is_array($row)) {
                 continue;
             }
             $values = array_slice(array_values($row), 0, $colCount);
@@ -251,7 +255,7 @@ TYPST;
                 $values[] = '-';
             }
             foreach ($values as $value) {
-                $cells[] = '"' . $this->typstEscape($this->stringifyCell($value)) . '"';
+                $cells[] = '"'.$this->typstEscape($this->stringifyCell($value)).'"';
             }
         }
 
@@ -260,7 +264,7 @@ TYPST;
         }
 
         $tableNum = $this->typstEscape((string) $table->table_number);
-        $titleId = $this->typstEscape($table->title_id ?: 'Tabel ' . $table->table_number);
+        $titleId = $this->typstEscape($table->title_id ?: 'Tabel '.$table->table_number);
         $titleEn = $this->typstEscape($table->title_en ?? '');
         $source = $this->typstEscape($table->source_agency ?: 'BPS Kabupaten Jember');
 
@@ -270,9 +274,9 @@ TYPST;
         $out .= "  title_en: \"{$titleEn}\",\n";
         $out .= "  table_num: \"{$tableNum}\",\n";
         $out .= "  col_widths: {$colWidths},\n";
-        $out .= '  headers_id: (' . implode(', ', $headersId) . "),\n";
-        $out .= '  headers_en: (' . implode(', ', $headersEn) . "),\n";
-        $out .= '  data_rows: (' . implode(', ', $cells) . "),\n";
+        $out .= '  headers_id: ('.implode(', ', $headersId)."),\n";
+        $out .= '  headers_en: ('.implode(', ', $headersEn)."),\n";
+        $out .= '  data_rows: ('.implode(', ', $cells)."),\n";
         $out .= "  source_text: \"{$source}\",\n";
         $out .= ")\n\n";
 

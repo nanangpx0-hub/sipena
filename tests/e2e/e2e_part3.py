@@ -1,7 +1,8 @@
 """SI-PENA E2E part 3/4: suites 4-5."""
 import re
-from e2e_part1 import get, req, csrf, snap, check
+from e2e_part1 import get, req, csrf, snap, check, login_as
 def suite4():
+    check("S4.login_approver", login_as("approver"), "sesi approver")
     s, h, b, u = get("/approval")
     html = b.decode("utf-8", "ignore")
     check("S4.approval_http200", s == 200, "GET /approval -> %s" % s)
@@ -33,6 +34,7 @@ def suite4():
         if t8:
             req("POST", "/approval/%s/approve" % aid, data={"_token": t8}, timeout=60)
 def suite5():
+    check("S5.login_approver", login_as("approver"), "sesi approver")
     s, h, b, u = get("/compilation")
     html = b.decode("utf-8", "ignore")
     check("S5.compilation_http200", s == 200, "GET /compilation -> %s" % s)

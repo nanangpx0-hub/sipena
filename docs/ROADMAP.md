@@ -70,7 +70,7 @@ Roadmap ini dirancang untuk memandu pembangunan dan transisi bertahap dari penyu
 * [ ] Pembangunan antarmuka upload file Excel dinas/OPD untuk peran Operator.
 * [ ] Penerapan mekanisme kalkulasi hash SHA-256 pada setiap berkas yang diunggah.
 * [ ] Penerapan skema versioning penyimpanan:  
-  `/storage/raw_excel/{tahun}/{instansi}/{timestamp}_v{nomor}_{nama_file}.xlsx`.
+  `/storage/app/private/raw_excel/{tahun}/{instansi}/{timestamp}_v{nomor}_{nama_file}.xlsx`.
 * [ ] Integrasi skrip Python `parsers/generic_cleaner.py`:
   * Deteksi dan pembersihan otomatis sel yang dimerge (*unmerge cells*).
   * Pembersihan baris kosong dan normalisasi tanda desimal (koma ke titik).

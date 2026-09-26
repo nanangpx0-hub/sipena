@@ -28,4 +28,5 @@ __pycache__/
 /storage/temp
 /storage/raw_excel/*
 /storage/custom_assets/*
+/data
 

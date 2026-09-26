@@ -17,8 +17,8 @@ class NarrativeEngineService
 
         $resolved = $templateText;
         foreach ($tokens as $key => $value) {
-            $pattern = '/\{\{\s*' . preg_quote($key, '/') . '\s*\}\}/i';
-            $resolved = preg_replace($pattern, (string)$value, $resolved);
+            $pattern = '/\{\{\s*'.preg_quote($key, '/').'\s*\}\}/i';
+            $resolved = preg_replace($pattern, (string) $value, $resolved);
         }
 
         return $resolved;
@@ -35,7 +35,7 @@ class NarrativeEngineService
             'judul_publikasi' => $publication->title,
             'nama_kecamatan' => $district ? $district->name : 'Kabupaten Jember',
             'ibukota_kecamatan' => $district?->capital_city ?? 'Jember',
-            'luas_wilayah' => $district?->total_area_sqkm ? number_format($district->total_area_sqkm, 2, ',', '.') . ' km²' : '3.306,68 km²',
+            'luas_wilayah' => $district?->total_area_sqkm ? number_format($district->total_area_sqkm, 2, ',', '.').' km²' : '3.306,68 km²',
             'ketinggian_min' => $district?->altitude_min ?? 0,
             'ketinggian_max' => $district?->altitude_max ?? 500,
         ];

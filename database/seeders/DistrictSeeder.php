@@ -60,9 +60,9 @@ class DistrictSeeder extends Seeder
 
             // Add sample villages for demonstration & fuzzy matching
             $sampleVillages = [
-                ['bps_code' => $d['bps_code'] . '001', 'name' => $d['name'] . ' Kota', 'is_kelurahan' => str_starts_with($d['bps_code'], '35097'), 'area_sqm' => 12500000],
-                ['bps_code' => $d['bps_code'] . '002', 'name' => $d['name'] . ' Timur', 'is_kelurahan' => false, 'area_sqm' => 14200000],
-                ['bps_code' => $d['bps_code'] . '003', 'name' => $d['name'] . ' Barat', 'is_kelurahan' => false, 'area_sqm' => 11800000],
+                ['bps_code' => $d['bps_code'].'001', 'name' => $d['name'].' Kota', 'is_kelurahan' => str_starts_with($d['bps_code'], '35097'), 'area_sqm' => 12500000],
+                ['bps_code' => $d['bps_code'].'002', 'name' => $d['name'].' Timur', 'is_kelurahan' => false, 'area_sqm' => 14200000],
+                ['bps_code' => $d['bps_code'].'003', 'name' => $d['name'].' Barat', 'is_kelurahan' => false, 'area_sqm' => 11800000],
             ];
 
             foreach ($sampleVillages as $v) {

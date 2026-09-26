@@ -60,17 +60,24 @@ Salin berkas `.env.example` ke `.env`, sesuaikan parameter:
 APP_NAME="SI-PENA"
 APP_ENV=local
 APP_KEY=base64:...
-APP_DEBUG=true
+APP_DEBUG=false
 APP_URL=http://sipena.test
 
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_DATABASE=sipena
-DB_USERNAME=root
-DB_PASSWORD=
+DB_USERNAME=sipena_app
+DB_PASSWORD=<buat_sendiri>
 
 QUEUE_CONNECTION=database
+```
+
+Buat dulu akun MySQL khusus aplikasi (jangan memakai `root` di produksi):
+```sql
+CREATE USER 'sipena_app'@'127.0.0.1' IDENTIFIED BY '<buat_sendiri>';
+GRANT ALL PRIVILEGES ON `sipena`.* TO 'sipena_app'@'127.0.0.1';
+FLUSH PRIVILEGES;
 ```
 
 Jalankan perintah inisialisasi:
@@ -108,6 +115,6 @@ Untuk produksi workstation, worker ini dapat dijalankan sebagai layanan atau skr
 
 Jalankan pengujian end-to-end melalui PowerShell:
 ```powershell
-& "C:\laragon\www\sipena\python_engine\venv\Scripts\python.exe" "C:\laragon\www\sipena\python_engine\test_e2e_sipena.py"
+& "C:\laragon\www\sipena\python_engine\venv\Scripts\python.exe" "C:\laragon\www\sipena\tests\e2e\test_e2e_sipena.py"
 ```
 Jika seluruh pengujian menghasilkan tanda `[OK]`, sistem telah 100% siap operasional.

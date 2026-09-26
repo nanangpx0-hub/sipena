@@ -185,7 +185,7 @@ erDiagram
    * `id`: Primary key.
    * `publication_id`: Foreign key ke tabel `publications`.
    * `original_filename`: Nama file Excel asli saat diunggah.
-   * `stored_path`: Lokasi file di direktori server (`storage/raw_excel/...`).
+   * `stored_path`: Lokasi file di direktori server (`storage/app/private/raw_excel/...`).
    * `file_sha256`: Hash SHA-256 untuk verifikasi keaslian dan audit anti-manipulasi.
    * `chapter_number`: Bab tujuan (1 - 7 untuk KDA).
    * `uploaded_by`: Foreign key ke tabel `users`.
@@ -429,15 +429,19 @@ C:\laragon\www\sipena\typst_engine\bin\typst.exe --version
    ```env
    APP_NAME="SI-PENA"
    APP_ENV=local
+   APP_DEBUG=false
    APP_URL=http://sipena.test
 
    DB_CONNECTION=mysql
    DB_HOST=127.0.0.1
    DB_PORT=3306
    DB_DATABASE=sipena
-   DB_USERNAME=root
-   DB_PASSWORD=
+   DB_USERNAME=sipena_app
+   DB_PASSWORD=<buat_sendiri>
    ```
+
+   Gunakan akun MySQL khusus aplikasi (`sipena_app`) dengan hak akses hanya pada
+   database `sipena`; jangan memakai `root` pada server produksi.
 
 2. **Migrasi & Seeder Master Data BPS Jember:**
    ```powershell
@@ -457,7 +461,7 @@ C:\laragon\www\sipena\typst_engine\bin\typst.exe --version
 Sistem dilengkapi dengan skrip pengujian terintegrasi untuk memverifikasi fungsionalitas seluruh lapisan:
 ```powershell
 cd C:\laragon\www\sipena
-& "python_engine\venv\Scripts\python.exe" python_engine\test_e2e_sipena.py
+& "python_engine\venv\Scripts\python.exe" tests\e2e\test_e2e_sipena.py
 ```
 Output pengujian memverifikasi:
 - Status kompilasi template Typst (KDA, DDA, SKD).

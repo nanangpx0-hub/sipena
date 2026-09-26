@@ -29,7 +29,7 @@ return new class extends Migration
                 'IN_EDITORIAL',
                 'PENDING_APPROVAL',
                 'APPROVED_LOCKED',
-                'FINAL_RELEASED'
+                'FINAL_RELEASED',
             ])->default('PENDING_DATA');
             $table->dateTime('soft_deadline')->nullable();
             $table->dateTime('hard_deadline')->nullable();

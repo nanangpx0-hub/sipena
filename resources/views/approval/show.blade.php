@@ -71,6 +71,77 @@
         </div>
     </div>
 
+    <!-- Ingested Table Data Preview: angka asli untuk verifikasi Approver -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+        <h2 class="text-base font-bold text-bps-navy mb-1">Pratinjau Data Tabel (Hasil Ingesti)</h2>
+        <p class="text-xs text-slate-500 mb-4">Angka di bawah diambil langsung dari berkas OPD yang diunggah (bukan angka sistem) dan wajib dicocokkan sebelum Approve &amp; Lock.</p>
+
+        <div class="space-y-6">
+            @forelse($publication->tables as $table)
+            @php
+                $td = is_array($table->table_data) ? $table->table_data : [];
+                $tdHeaders = array_values(array_filter((array) ($td['headers'] ?? []), 'is_scalar'));
+                $tdRows = is_array($td['data'] ?? null) ? $td['data'] : [];
+            @endphp
+            <div id="table-preview-{{ $table->id }}" class="border border-slate-200 rounded-lg overflow-hidden">
+                <div class="flex items-center justify-between bg-slate-50 px-4 py-2 border-b border-slate-200">
+                    <div class="text-xs font-bold text-bps-navy">
+                        Tabel {{ $table->table_number }} &mdash; {{ $table->title_id }}
+                    </div>
+                    <div class="text-[10px] text-slate-500">
+                        Bab {{ $table->chapter_number }} &middot;
+                        @if(($td['status'] ?? 'error') === 'success')
+                            <span class="text-emerald-700 font-bold">Data sah dari {{ $table->source_agency }}</span>
+                        @else
+                            <span class="text-rose-700 font-bold">Ekstraksi gagal</span>
+                        @endif
+                        &middot;
+                        @if($table->is_verified)
+                            <span class="text-emerald-700 font-bold">Terverifikasi</span>
+                        @else
+                            <span class="text-amber-700 font-bold">Belum diverifikasi</span>
+                        @endif
+                    </div>
+                </div>
+
+                @if($tdHeaders !== [] && $tdRows !== [])
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-xs divide-y divide-slate-200">
+                        <thead class="bg-bps-navy text-white">
+                            <tr>
+                                @foreach($tdHeaders as $th)
+                                <th class="px-3 py-2 text-left font-semibold whitespace-nowrap">{{ $th }}</th>
+                                @endforeach
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            @foreach(array_slice($tdRows, 0, 30) as $row)
+                            <tr class="hover:bg-orange-50/40">
+                                @foreach($tdHeaders as $th)
+                                <td class="px-3 py-1.5 whitespace-nowrap text-slate-700">
+                                    {{ is_array($row) ? ($row[$th] ?? '-') : '-' }}
+                                </td>
+                                @endforeach
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                @if(count($tdRows) > 30)
+                <div class="bg-slate-50 px-4 py-1.5 text-[10px] text-slate-500">
+                    Menampilkan 30 dari {{ count($tdRows) }} baris; sisa baris tetap ikut tercetak pada PDF.
+                </div>
+                @endif
+                @else
+                <div class="px-4 py-3 text-xs text-slate-500">Berkas tidak menghasilkan baris data yang sah.</div>
+                @endif
+            </div>
+            @empty
+            <p class="text-xs text-slate-400">Belum ada tabel teringesti untuk publikasi ini.</p>
+            @endforelse
+        </div>
+    </div>
+
     <!-- Workflow Audit Logs -->
     <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
         <h2 class="text-base font-bold text-bps-navy mb-4">Jejak Audit Alur Kerja (Workflow Audit Trail)</h2>

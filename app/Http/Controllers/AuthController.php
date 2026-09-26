@@ -31,7 +31,7 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        $throttleKey = 'login:' . strtolower($credentials['email']) . '|' . $request->ip();
+        $throttleKey = 'login:'.strtolower($credentials['email']).'|'.$request->ip();
 
         if (RateLimiter::tooManyAttempts($throttleKey, 6)) {
             $seconds = RateLimiter::availableIn($throttleKey);
@@ -41,7 +41,7 @@ class AuthController extends Controller
             ])->onlyInput('email');
         }
 
-        if (!Auth::attempt($credentials, $request->boolean('remember'))) {
+        if (! Auth::attempt($credentials, $request->boolean('remember'))) {
             RateLimiter::hit($throttleKey, 60);
 
             return back()->withErrors([
@@ -50,7 +50,7 @@ class AuthController extends Controller
         }
 
         $user = Auth::user();
-        if (!$user->is_active) {
+        if (! $user->is_active) {
             Auth::logout();
             RateLimiter::hit($throttleKey, 60);
 

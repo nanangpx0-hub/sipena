@@ -2,9 +2,9 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Publication;
 use Closure;
 use Illuminate\Http\Request;
-use App\Models\Publication;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckDeadline
