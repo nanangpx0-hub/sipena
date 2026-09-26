@@ -10,11 +10,12 @@ REM        nssm install SipenaQueue "C:\laragon\bin\php\php-8.2.32-nts-Win32-vs1
 REM        nssm start SipenaQueue
 REM =========================================================================
 setlocal
-cd /d C:\laragon\www\sipena
+cd /d "%~dp0"
 
 set PHP_BIN=C:\laragon\bin\php\php-8.2.32-nts-Win32-vs16-x64\php.exe
+if not exist "%PHP_BIN%" set PHP_BIN=php
 
-echo [SI-PENA] Menjalankan queue worker (tutup jendela ini untuk menghentikan)...
+echo [SI-PENA] Menjalankan queue worker menggunakan "%PHP_BIN%" (tutup jendela ini untuk menghentikan)...
 "%PHP_BIN%" artisan queue:work --sleep=3 --tries=3 --timeout=180
 
 endlocal
