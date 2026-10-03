@@ -44,6 +44,54 @@ class ApprovalController extends Controller
     }
 
     /**
+     * Laporan cetak (A4) catatan audit & mutu data untuk diarsipkan bersama
+     * dokumen keluaran: identitas publikasi, riwayat berkas OPD, editor ulasan,
+     * jejak audit alur kerja, serta temuan anomali data ingesti.
+     */
+    public function auditNote(int $id)
+    {
+        $publication = Publication::with([
+            'district',
+            'tables',
+            'rawDataFiles.uploader',
+            'workflowLogs.user',
+            'narratives.editor',
+        ])->findOrFail($id);
+
+        $warningCount = 0;
+        $suggestionCount = 0;
+
+        foreach ($publication->tables as $table) {
+            $data = is_array($table->table_data) ? $table->table_data : [];
+
+            if (is_array($data['warnings'] ?? null)) {
+                $warningCount += count($data['warnings']);
+            }
+
+            if (is_array($data['village_suggestions'] ?? null)) {
+                $suggestionCount += count($data['village_suggestions']);
+            }
+        }
+
+        $editors = $publication->narratives
+            ->filter(fn ($narrative) => $narrative->last_edited_by !== null)
+            ->unique(fn ($narrative) => $narrative->last_edited_by)
+            ->values();
+
+        $workflowLogs = $publication->workflowLogs
+            ->sortBy('created_at')
+            ->values();
+
+        return view('approval.audit-note', compact(
+            'publication',
+            'warningCount',
+            'suggestionCount',
+            'editors',
+            'workflowLogs'
+        ));
+    }
+
+    /**
      * Setujui dan kunci bab publikasi (Approve & Lock)
      */
     public function approve(Request $request, int $id)

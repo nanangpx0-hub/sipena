@@ -1,172 +1,460 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Gerbang SI-PENA - BPS Kabupaten Jember (3509)</title>
+    <!-- Aset lokal (Tailwind, Alpine, font self-host) — jalan penuh di intranet tanpa internet -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased">
 
-        <title>Laravel</title>
+    <!-- ═══════════ TOPBAR BRANDING ═══════════ -->
+    <header class="bg-bps-navy border-b-4 border-bps-orange sticky top-0 z-50 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <a href="{{ route('portal') }}" class="flex items-center space-x-3 group">
+                @include('partials.bps-logo', ['class' => 'h-10 w-auto drop-shadow-sm group-hover:scale-105 transition-transform'])
+                <div class="leading-tight">
+                    <div class="flex items-center space-x-2">
+                        <span class="font-extrabold text-xl tracking-tight text-white">SI-PENA</span>
+                        <span class="bg-bps-orange text-white text-[10px] font-bold px-1.5 py-0.5 rounded">BPS 3509</span>
+                    </div>
+                    <p class="text-[11px] text-slate-300 font-medium">Sistem Penerbitan Angka &mdash; BPS Kabupaten Jember</p>
+                </div>
+            </a>
+            <nav class="hidden md:flex items-center space-x-1 text-xs font-semibold text-slate-200">
+                <a href="#pilar" class="px-3 py-2 rounded-md hover:bg-white/10">3 Pilar Publikasi</a>
+                <a href="#alur" class="px-3 py-2 rounded-md hover:bg-white/10">Alur Terbit</a>
+                <a href="#kalender" class="px-3 py-2 rounded-md hover:bg-white/10">Kalender Rilis</a>
+                <a href="#kontak" class="px-3 py-2 rounded-md hover:bg-white/10">Kontak PST</a>
+                <a href="{{ route('login') }}" class="ml-2 bg-bps-orange hover:bg-bps-darkorange text-white px-4 py-2 rounded-md shadow-sm transition-colors">
+                    MASUK SISTEM
+                </a>
+            </nav>
+            <a href="{{ route('login') }}" class="md:hidden bg-bps-orange text-white text-xs font-bold px-3 py-2 rounded-md">MASUK</a>
+        </div>
+    </header>
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,600&display=swap" rel="stylesheet" />
 
-        <!-- Styles -->
-        <style>
-            /* ! tailwindcss v3.4.1 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:Figtree, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]{display:none}*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: }.absolute{position:absolute}.relative{position:relative}.-left-20{left:-5rem}.top-0{top:0px}.-bottom-16{bottom:-4rem}.-left-16{left:-4rem}.-mx-3{margin-left:-0.75rem;margin-right:-0.75rem}.mt-4{margin-top:1rem}.mt-6{margin-top:1.5rem}.flex{display:flex}.grid{display:grid}.hidden{display:none}.aspect-video{aspect-ratio:16 / 9}.size-12{width:3rem;height:3rem}.size-5{width:1.25rem;height:1.25rem}.size-6{width:1.5rem;height:1.5rem}.h-12{height:3rem}.h-40{height:10rem}.h-full{height:100%}.min-h-screen{min-height:100vh}.w-full{width:100%}.w-\[calc\(100\%\+8rem\)\]{width:calc(100% + 8rem)}.w-auto{width:auto}.max-w-\[877px\]{max-width:877px}.max-w-2xl{max-width:42rem}.flex-1{flex:1 1 0%}.shrink-0{flex-shrink:0}.grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.flex-col{flex-direction:column}.items-start{align-items:flex-start}.items-center{align-items:center}.items-stretch{align-items:stretch}.justify-end{justify-content:flex-end}.justify-center{justify-content:center}.gap-2{gap:0.5rem}.gap-4{gap:1rem}.gap-6{gap:1.5rem}.self-center{align-self:center}.overflow-hidden{overflow:hidden}.rounded-\[10px\]{border-radius:10px}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:0.5rem}.rounded-md{border-radius:0.375rem}.rounded-sm{border-radius:0.125rem}.bg-\[\#FF2D20\]\/10{background-color:rgb(255 45 32 / 0.1)}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity))}.bg-gradient-to-b{background-image:linear-gradient(to bottom, var(--tw-gradient-stops))}.from-transparent{--tw-gradient-from:transparent var(--tw-gradient-from-position);--tw-gradient-to:rgb(0 0 0 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.via-white{--tw-gradient-to:rgb(255 255 255 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #fff var(--tw-gradient-via-position), var(--tw-gradient-to)}.to-white{--tw-gradient-to:#fff var(--tw-gradient-to-position)}.stroke-\[\#FF2D20\]{stroke:#FF2D20}.object-cover{object-fit:cover}.object-top{object-position:top}.p-6{padding:1.5rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}.py-10{padding-top:2.5rem;padding-bottom:2.5rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.py-16{padding-top:4rem;padding-bottom:4rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.pt-3{padding-top:0.75rem}.text-center{text-align:center}.font-sans{font-family:Figtree, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-sm\/relaxed{font-size:0.875rem;line-height:1.625}.text-xl{font-size:1.25rem;line-height:1.75rem}.font-semibold{font-weight:600}.text-black{--tw-text-opacity:1;color:rgb(0 0 0 / var(--tw-text-opacity))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity))}.underline{-webkit-text-decoration-line:underline;text-decoration-line:underline}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.shadow-\[0px_14px_34px_0px_rgba\(0\2c 0\2c 0\2c 0\.08\)\]{--tw-shadow:0px 14px 34px 0px rgba(0,0,0,0.08);--tw-shadow-colored:0px 14px 34px 0px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.ring-1{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)}.ring-transparent{--tw-ring-color:transparent}.ring-white\/\[0\.05\]{--tw-ring-color:rgb(255 255 255 / 0.05)}.drop-shadow-\[0px_4px_34px_rgba\(0\2c 0\2c 0\2c 0\.06\)\]{--tw-drop-shadow:drop-shadow(0px 4px 34px rgba(0,0,0,0.06));filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.drop-shadow-\[0px_4px_34px_rgba\(0\2c 0\2c 0\2c 0\.25\)\]{--tw-drop-shadow:drop-shadow(0px 4px 34px rgba(0,0,0,0.25));filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.transition{transition-property:color, background-color, border-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.duration-300{transition-duration:300ms}.selection\:bg-\[\#FF2D20\] *::selection{--tw-bg-opacity:1;background-color:rgb(255 45 32 / var(--tw-bg-opacity))}.selection\:text-white *::selection{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity))}.selection\:bg-\[\#FF2D20\]::selection{--tw-bg-opacity:1;background-color:rgb(255 45 32 / var(--tw-bg-opacity))}.selection\:text-white::selection{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity))}.hover\:text-black:hover{--tw-text-opacity:1;color:rgb(0 0 0 / var(--tw-text-opacity))}.hover\:text-black\/70:hover{color:rgb(0 0 0 / 0.7)}.hover\:ring-black\/20:hover{--tw-ring-color:rgb(0 0 0 / 0.2)}.focus\:outline-none:focus{outline:2px solid transparent;outline-offset:2px}.focus-visible\:ring-1:focus-visible{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)}.focus-visible\:ring-\[\#FF2D20\]:focus-visible{--tw-ring-opacity:1;--tw-ring-color:rgb(255 45 32 / var(--tw-ring-opacity))}@media (min-width: 640px){.sm\:size-16{width:4rem;height:4rem}.sm\:size-6{width:1.5rem;height:1.5rem}.sm\:pt-5{padding-top:1.25rem}}@media (min-width: 768px){.md\:row-span-3{grid-row:span 3 / span 3}}@media (min-width: 1024px){.lg\:col-start-2{grid-column-start:2}.lg\:h-16{height:4rem}.lg\:max-w-7xl{max-width:80rem}.lg\:grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.lg\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.lg\:flex-col{flex-direction:column}.lg\:items-end{align-items:flex-end}.lg\:justify-center{justify-content:center}.lg\:gap-8{gap:2rem}.lg\:p-10{padding:2.5rem}.lg\:pb-10{padding-bottom:2.5rem}.lg\:pt-0{padding-top:0px}.lg\:text-\[\#FF2D20\]{--tw-text-opacity:1;color:rgb(255 45 32 / var(--tw-text-opacity))}}@media (prefers-color-scheme: dark){.dark\:block{display:block}.dark\:hidden{display:none}.dark\:bg-black{--tw-bg-opacity:1;background-color:rgb(0 0 0 / var(--tw-bg-opacity))}.dark\:bg-zinc-900{--tw-bg-opacity:1;background-color:rgb(24 24 27 / var(--tw-bg-opacity))}.dark\:via-zinc-900{--tw-gradient-to:rgb(24 24 27 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #18181b var(--tw-gradient-via-position), var(--tw-gradient-to)}.dark\:to-zinc-900{--tw-gradient-to:#18181b var(--tw-gradient-to-position)}.dark\:text-white\/50{color:rgb(255 255 255 / 0.5)}.dark\:text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity))}.dark\:text-white\/70{color:rgb(255 255 255 / 0.7)}.dark\:ring-zinc-800{--tw-ring-opacity:1;--tw-ring-color:rgb(39 39 42 / var(--tw-ring-opacity))}.dark\:hover\:text-white:hover{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity))}.dark\:hover\:text-white\/70:hover{color:rgb(255 255 255 / 0.7)}.dark\:hover\:text-white\/80:hover{color:rgb(255 255 255 / 0.8)}.dark\:hover\:ring-zinc-700:hover{--tw-ring-opacity:1;--tw-ring-color:rgb(63 63 70 / var(--tw-ring-opacity))}.dark\:focus-visible\:ring-\[\#FF2D20\]:focus-visible{--tw-ring-opacity:1;--tw-ring-color:rgb(255 45 32 / var(--tw-ring-opacity))}.dark\:focus-visible\:ring-white:focus-visible{--tw-ring-opacity:1;--tw-ring-color:rgb(255 255 255 / var(--tw-ring-opacity))}}
-        </style>
-    </head>
-    <body class="font-sans antialiased dark:bg-black dark:text-white/50">
-        <div className="bg-gray-50 text-black/50 dark:bg-black dark:text-white/50">
-            <img id="background" class="absolute -left-20 top-0 max-w-[877px]" src="https://laravel.com/assets/img/welcome/background.svg" />
-            <div class="relative min-h-screen flex flex-col items-center justify-center selection:bg-[#FF2D20] selection:text-white">
-                <div class="relative w-full max-w-2xl px-6 lg:max-w-7xl">
-                    <header class="grid grid-cols-2 items-center gap-2 py-10 lg:grid-cols-3">
-                        <div class="flex lg:justify-center lg:col-start-2">
-                            <svg class="h-12 w-auto text-white lg:h-16 lg:text-[#FF2D20]" viewBox="0 0 62 65" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M61.8548 14.6253C61.8778 14.7102 61.8895 14.7978 61.8897 14.8858V28.5615C61.8898 28.737 61.8434 28.9095 61.7554 29.0614C61.6675 29.2132 61.5409 29.3392 61.3887 29.4265L49.9104 36.0351V49.1337C49.9104 49.4902 49.7209 49.8192 49.4118 49.9987L25.4519 63.7916C25.3971 63.8227 25.3372 63.8427 25.2774 63.8639C25.255 63.8714 25.2338 63.8851 25.2101 63.8913C25.0426 63.9354 24.8666 63.9354 24.6991 63.8913C24.6716 63.8838 24.6467 63.8689 24.6205 63.8589C24.5657 63.8389 24.5084 63.8215 24.456 63.7916L0.501061 49.9987C0.348882 49.9113 0.222437 49.7853 0.134469 49.6334C0.0465019 49.4816 0.000120578 49.3092 0 49.1337L0 8.10652C0 8.01678 0.0124642 7.92953 0.0348998 7.84477C0.0423783 7.8161 0.0598282 7.78993 0.0697995 7.76126C0.0884958 7.70891 0.105946 7.65531 0.133367 7.6067C0.152063 7.5743 0.179485 7.54812 0.20192 7.51821C0.230588 7.47832 0.256763 7.43719 0.290416 7.40229C0.319084 7.37362 0.356476 7.35243 0.388883 7.32751C0.425029 7.29759 0.457436 7.26518 0.498568 7.2415L12.4779 0.345059C12.6296 0.257786 12.8015 0.211853 12.9765 0.211853C13.1515 0.211853 13.3234 0.257786 13.475 0.345059L25.4531 7.2415H25.4556C25.4955 7.26643 25.5292 7.29759 25.5653 7.32626C25.5977 7.35119 25.6339 7.37362 25.6625 7.40104C25.6974 7.43719 25.7224 7.47832 25.7523 7.51821C25.7735 7.54812 25.8021 7.5743 25.8196 7.6067C25.8483 7.65656 25.8645 7.70891 25.8844 7.76126C25.8944 7.78993 25.9118 7.8161 25.9193 7.84602C25.9423 7.93096 25.954 8.01853 25.9542 8.10652V33.7317L35.9355 27.9844V14.8846C35.9355 14.7973 35.948 14.7088 35.9704 14.6253C35.9792 14.5954 35.9954 14.5692 36.0053 14.5405C36.0253 14.4882 36.0427 14.4346 36.0702 14.386C36.0888 14.3536 36.1163 14.3274 36.1375 14.2975C36.1674 14.2576 36.1923 14.2165 36.2272 14.1816C36.2559 14.1529 36.292 14.1317 36.3244 14.1068C36.3618 14.0769 36.3942 14.0445 36.4341 14.0208L48.4147 7.12434C48.5663 7.03694 48.7383 6.99094 48.9133 6.99094C49.0883 6.99094 49.2602 7.03694 49.4118 7.12434L61.3899 14.0208C61.4323 14.0457 61.4647 14.0769 61.5021 14.1055C61.5333 14.1305 61.5694 14.1529 61.5981 14.1803C61.633 14.2165 61.6579 14.2576 61.6878 14.2975C61.7103 14.3274 61.7377 14.3536 61.7551 14.386C61.7838 14.4346 61.8 14.4882 61.8199 14.5405C61.8312 14.5692 61.8474 14.5954 61.8548 14.6253ZM59.893 27.9844V16.6121L55.7013 19.0252L49.9104 22.3593V33.7317L59.8942 27.9844H59.893ZM47.9149 48.5566V37.1768L42.2187 40.4299L25.953 49.7133V61.2003L47.9149 48.5566ZM1.99677 9.83281V48.5566L23.9562 61.199V49.7145L12.4841 43.2219L12.4804 43.2194L12.4754 43.2169C12.4368 43.1945 12.4044 43.1621 12.3682 43.1347C12.3371 43.1097 12.3009 43.0898 12.2735 43.0624L12.271 43.0586C12.2386 43.0275 12.2162 42.9888 12.1887 42.9539C12.1638 42.9203 12.1339 42.8916 12.114 42.8567L12.1127 42.853C12.0903 42.8156 12.0766 42.7707 12.0604 42.7283C12.0442 42.6909 12.023 42.656 12.013 42.6161C12.0005 42.5688 11.998 42.5177 11.9931 42.4691C11.9881 42.4317 11.9781 42.3943 11.9781 42.3569V15.5801L6.18848 12.2446L1.99677 9.83281ZM12.9777 2.36177L2.99764 8.10652L12.9752 13.8513L22.9541 8.10527L12.9752 2.36177H12.9777ZM18.1678 38.2138L23.9574 34.8809V9.83281L19.7657 12.2459L13.9749 15.5801V40.6281L18.1678 38.2138ZM48.9133 9.14105L38.9344 14.8858L48.9133 20.6305L58.8909 14.8846L48.9133 9.14105ZM47.9149 22.3593L42.124 19.0252L37.9323 16.6121V27.9844L43.7219 31.3174L47.9149 33.7317V22.3593ZM24.9533 47.987L39.59 39.631L46.9065 35.4555L36.9352 29.7145L25.4544 36.3242L14.9907 42.3482L24.9533 47.987Z" fill="currentColor"/></svg>
+    <!-- ═══════════ HERO + SAMBUTAN RESMI ═══════════ -->
+    <section class="relative overflow-hidden bg-gradient-to-br from-bps-navy via-bps-navy to-bps-darknavy text-white">
+        <!-- Ornamen vektor latar: grid statistik + batang & garis tren -->
+        <svg class="absolute inset-0 w-full h-full opacity-[0.07]" aria-hidden="true" viewBox="0 0 800 400" preserveAspectRatio="none">
+            <defs>
+                <pattern id="gridStats" width="40" height="40" patternUnits="userSpaceOnUse">
+                    <path d="M40 0H0v40" fill="none" stroke="#ffffff" stroke-width="1"/>
+                </pattern>
+            </defs>
+            <rect width="800" height="400" fill="url(#gridStats)"/>
+            <g fill="#E67E22">
+                <rect x="80" y="260" width="26" height="90" rx="3"/>
+                <rect x="120" y="210" width="26" height="140" rx="3"/>
+                <rect x="160" y="170" width="26" height="180" rx="3"/>
+                <rect x="640" y="240" width="26" height="110" rx="3"/>
+                <rect x="680" y="190" width="26" height="160" rx="3"/>
+                <rect x="720" y="140" width="26" height="210" rx="3"/>
+            </g>
+            <polyline points="80,250 160,160 240,200 320,120" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>
+        </svg>
+
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 lg:py-20 grid lg:grid-cols-2 gap-10 items-center">
+            <div>
+                <span class="inline-flex items-center space-x-2 bg-white/10 border border-white/20 text-amber-300 text-[11px] font-black uppercase tracking-widest px-3 py-1 rounded-full">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>Portal Gerbang &middot; Server Intranet &middot; Kode Wilayah 3509</span>
+                </span>
+                <h1 class="mt-4 text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight">
+                    Portal Gerbang <span class="text-bps-orange">SI-PENA</span><br>
+                    <span class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-200">BPS Kabupaten Jember</span>
+                </h1>
+                <p class="mt-4 text-sm sm:text-base text-slate-300 max-w-xl leading-relaxed">
+                    Sistem Penerbitan dan Penataan Angka Daerah &mdash; otomasi penuh penyusunan
+                    <strong class="text-white">31 Kecamatan Dalam Angka (KDA)</strong>,
+                    <strong class="text-white">Kabupaten Jember Dalam Angka (DDA)</strong>, dan
+                    <strong class="text-white">Analisis Survei Kebutuhan Data (SKD)</strong>
+                    dengan arsitektur tri-bahasa: PHP &middot; Python &middot; Typst.
+                </p>
+
+                <!-- Sambutan Resmi -->
+                <div class="mt-6 bg-white/10 backdrop-blur-sm border border-white/15 rounded-xl p-5 max-w-xl">
+                    <div class="flex items-center space-x-3 mb-3">
+                        @include('partials.bps-logo', ['class' => 'h-9 w-auto bg-white rounded p-1'])
+                        <div class="text-[11px] leading-tight">
+                            <p class="font-black uppercase tracking-wide text-amber-300">Sambutan Resmi</p>
+                            <p class="text-slate-300">Kepala BPS Kabupaten Jember</p>
                         </div>
-                        @if (Route::has('login'))
-                            <nav class="-mx-3 flex flex-1 justify-end">
-                                @auth
-                                    <a
-                                        href="{{ url('/dashboard') }}"
-                                        class="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
-                                    >
-                                        Dashboard
-                                    </a>
-                                @else
-                                    <a
-                                        href="{{ route('login') }}"
-                                        class="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
-                                    >
-                                        Log in
-                                    </a>
+                    </div>
+                    <p class="text-sm text-slate-200 leading-relaxed italic">
+                        &ldquo;Selamat datang di Portal Gerbang SI-PENA. Sistem ini memastikan setiap angka
+                        statistik yang diterbitkan di Kabupaten Jember tercatat, terverifikasi, dan
+                        dikompilasi sesuai standar mutu Badan Pusat Statistik &mdash; dari ingesti data OPD
+                        hingga buku siap cetak.&rdquo;
+                    </p>
+                </div>
 
-                                    @if (Route::has('register'))
-                                        <a
-                                            href="{{ route('register') }}"
-                                            class="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
-                                        >
-                                            Register
-                                        </a>
-                                    @endif
-                                @endauth
-                            </nav>
-                        @endif
-                    </header>
+                <div class="mt-6 flex flex-wrap gap-3">
+                    <a href="{{ route('login') }}" class="bg-bps-orange hover:bg-bps-darkorange text-white font-bold text-sm px-6 py-3 rounded-lg shadow-lg transition-all hover:-translate-y-0.5">
+                        Masuk ke SI-PENA
+                    </a>
+                    <a href="#pilar" class="bg-white/10 hover:bg-white/20 border border-white/25 text-white font-bold text-sm px-6 py-3 rounded-lg transition-colors">
 
-                    <main class="mt-6">
-                        <div class="grid gap-6 lg:grid-cols-2 lg:gap-8">
-                            <a
-                                href="https://laravel.com/docs"
-                                id="docs-card"
-                                class="flex flex-col items-start gap-6 overflow-hidden rounded-lg bg-white p-6 shadow-[0px_14px_34px_0px_rgba(0,0,0,0.08)] ring-1 ring-white/[0.05] transition duration-300 hover:text-black/70 hover:ring-black/20 focus:outline-none focus-visible:ring-[#FF2D20] md:row-span-3 lg:p-10 lg:pb-10 dark:bg-zinc-900 dark:ring-zinc-800 dark:hover:text-white/70 dark:hover:ring-zinc-700 dark:focus-visible:ring-[#FF2D20]"
-                            >
-                                <div id="screenshot-container" class="relative flex w-full flex-1 items-stretch">
-                                    <img
-                                        src="https://laravel.com/assets/img/welcome/docs-light.svg"
-                                        alt="Laravel documentation screenshot"
-                                        class="aspect-video h-full w-full flex-1 rounded-[10px] object-top object-cover drop-shadow-[0px_4px_34px_rgba(0,0,0,0.06)] dark:hidden"
-                                        onerror="
-                                            document.getElementById('screenshot-container').classList.add('!hidden');
-                                            document.getElementById('docs-card').classList.add('!row-span-1');
-                                            document.getElementById('docs-card-content').classList.add('!flex-row');
-                                            document.getElementById('background').classList.add('!hidden');
-                                        "
-                                    />
-                                    <img
-                                        src="https://laravel.com/assets/img/welcome/docs-dark.svg"
-                                        alt="Laravel documentation screenshot"
-                                        class="hidden aspect-video h-full w-full flex-1 rounded-[10px] object-top object-cover drop-shadow-[0px_4px_34px_rgba(0,0,0,0.25)] dark:block"
-                                    />
-                                    <div
-                                        class="absolute -bottom-16 -left-16 h-40 w-[calc(100%+8rem)] bg-gradient-to-b from-transparent via-white to-white dark:via-zinc-900 dark:to-zinc-900"
-                                    ></div>
-                                </div>
-
-                                <div class="relative flex items-center gap-6 lg:items-end">
-                                    <div id="docs-card-content" class="flex items-start gap-6 lg:flex-col">
-                                        <div class="flex size-12 shrink-0 items-center justify-center rounded-full bg-[#FF2D20]/10 sm:size-16">
-                                            <svg class="size-5 sm:size-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><path fill="#FF2D20" d="M23 4a1 1 0 0 0-1.447-.894L12.224 7.77a.5.5 0 0 1-.448 0L2.447 3.106A1 1 0 0 0 1 4v13.382a1.99 1.99 0 0 0 1.105 1.79l9.448 4.728c.14.065.293.1.447.1.154-.005.306-.04.447-.105l9.453-4.724a1.99 1.99 0 0 0 1.1-1.789V4ZM3 6.023a.25.25 0 0 1 .362-.223l7.5 3.75a.251.251 0 0 1 .138.223v11.2a.25.25 0 0 1-.362.224l-7.5-3.75a.25.25 0 0 1-.138-.22V6.023Zm18 11.2a.25.25 0 0 1-.138.224l-7.5 3.75a.249.249 0 0 1-.329-.099.249.249 0 0 1-.033-.12V9.772a.251.251 0 0 1 .138-.224l7.5-3.75a.25.25 0 0 1 .362.224v11.2Z"/><path fill="#FF2D20" d="m3.55 1.893 8 4.048a1.008 1.008 0 0 0 .9 0l8-4.048a1 1 0 0 0-.9-1.785l-7.322 3.706a.506.506 0 0 1-.452 0L4.454.108a1 1 0 0 0-.9 1.785H3.55Z"/></svg>
-                                        </div>
-
-                                        <div class="pt-3 sm:pt-5 lg:pt-0">
-                                            <h2 class="text-xl font-semibold text-black dark:text-white">Documentation</h2>
-
-                                            <p class="mt-4 text-sm/relaxed">
-                                                Laravel has wonderful documentation covering every aspect of the framework. Whether you are a newcomer or have prior experience with Laravel, we recommend reading our documentation from beginning to end.
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <svg class="size-6 shrink-0 stroke-[#FF2D20]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"/></svg>
-                                </div>
-                            </a>
-
-                            <a
-                                href="https://laracasts.com"
-                                class="flex items-start gap-4 rounded-lg bg-white p-6 shadow-[0px_14px_34px_0px_rgba(0,0,0,0.08)] ring-1 ring-white/[0.05] transition duration-300 hover:text-black/70 hover:ring-black/20 focus:outline-none focus-visible:ring-[#FF2D20] lg:pb-10 dark:bg-zinc-900 dark:ring-zinc-800 dark:hover:text-white/70 dark:hover:ring-zinc-700 dark:focus-visible:ring-[#FF2D20]"
-                            >
-                                <div class="flex size-12 shrink-0 items-center justify-center rounded-full bg-[#FF2D20]/10 sm:size-16">
-                                    <svg class="size-5 sm:size-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><g fill="#FF2D20"><path d="M24 8.25a.5.5 0 0 0-.5-.5H.5a.5.5 0 0 0-.5.5v12a2.5 2.5 0 0 0 2.5 2.5h19a2.5 2.5 0 0 0 2.5-2.5v-12Zm-7.765 5.868a1.221 1.221 0 0 1 0 2.264l-6.626 2.776A1.153 1.153 0 0 1 8 18.123v-5.746a1.151 1.151 0 0 1 1.609-1.035l6.626 2.776ZM19.564 1.677a.25.25 0 0 0-.177-.427H15.6a.106.106 0 0 0-.072.03l-4.54 4.543a.25.25 0 0 0 .177.427h3.783c.027 0 .054-.01.073-.03l4.543-4.543ZM22.071 1.318a.047.047 0 0 0-.045.013l-4.492 4.492a.249.249 0 0 0 .038.385.25.25 0 0 0 .14.042h5.784a.5.5 0 0 0 .5-.5v-2a2.5 2.5 0 0 0-1.925-2.432ZM13.014 1.677a.25.25 0 0 0-.178-.427H9.101a.106.106 0 0 0-.073.03l-4.54 4.543a.25.25 0 0 0 .177.427H8.4a.106.106 0 0 0 .073-.03l4.54-4.543ZM6.513 1.677a.25.25 0 0 0-.177-.427H2.5A2.5 2.5 0 0 0 0 3.75v2a.5.5 0 0 0 .5.5h1.4a.106.106 0 0 0 .073-.03l4.54-4.543Z"/></g></svg>
-                                </div>
-
-                                <div class="pt-3 sm:pt-5">
-                                    <h2 class="text-xl font-semibold text-black dark:text-white">Laracasts</h2>
-
-                                    <p class="mt-4 text-sm/relaxed">
-                                        Laracasts offers thousands of video tutorials on Laravel, PHP, and JavaScript development. Check them out, see for yourself, and massively level up your development skills in the process.
-                                    </p>
-                                </div>
-
-                                <svg class="size-6 shrink-0 self-center stroke-[#FF2D20]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"/></svg>
-                            </a>
-
-                            <a
-                                href="https://laravel-news.com"
-                                class="flex items-start gap-4 rounded-lg bg-white p-6 shadow-[0px_14px_34px_0px_rgba(0,0,0,0.08)] ring-1 ring-white/[0.05] transition duration-300 hover:text-black/70 hover:ring-black/20 focus:outline-none focus-visible:ring-[#FF2D20] lg:pb-10 dark:bg-zinc-900 dark:ring-zinc-800 dark:hover:text-white/70 dark:hover:ring-zinc-700 dark:focus-visible:ring-[#FF2D20]"
-                            >
-                                <div class="flex size-12 shrink-0 items-center justify-center rounded-full bg-[#FF2D20]/10 sm:size-16">
-                                    <svg class="size-5 sm:size-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><g fill="#FF2D20"><path d="M8.75 4.5H5.5c-.69 0-1.25.56-1.25 1.25v4.75c0 .69.56 1.25 1.25 1.25h3.25c.69 0 1.25-.56 1.25-1.25V5.75c0-.69-.56-1.25-1.25-1.25Z"/><path d="M24 10a3 3 0 0 0-3-3h-2V2.5a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2V20a3.5 3.5 0 0 0 3.5 3.5h17A3.5 3.5 0 0 0 24 20V10ZM3.5 21.5A1.5 1.5 0 0 1 2 20V3a.5.5 0 0 1 .5-.5h14a.5.5 0 0 1 .5.5v17c0 .295.037.588.11.874a.5.5 0 0 1-.484.625L3.5 21.5ZM22 20a1.5 1.5 0 1 1-3 0V9.5a.5.5 0 0 1 .5-.5H21a1 1 0 0 1 1 1v10Z"/><path d="M12.751 6.047h2a.75.75 0 0 1 .75.75v.5a.75.75 0 0 1-.75.75h-2A.75.75 0 0 1 12 7.3v-.5a.75.75 0 0 1 .751-.753ZM12.751 10.047h2a.75.75 0 0 1 .75.75v.5a.75.75 0 0 1-.75.75h-2A.75.75 0 0 1 12 11.3v-.5a.75.75 0 0 1 .751-.753ZM4.751 14.047h10a.75.75 0 0 1 .75.75v.5a.75.75 0 0 1-.75.75h-10A.75.75 0 0 1 4 15.3v-.5a.75.75 0 0 1 .751-.753ZM4.75 18.047h7.5a.75.75 0 0 1 .75.75v.5a.75.75 0 0 1-.75.75h-7.5A.75.75 0 0 1 4 19.3v-.5a.75.75 0 0 1 .75-.753Z"/></g></svg>
-                                </div>
-
-                                <div class="pt-3 sm:pt-5">
-                                    <h2 class="text-xl font-semibold text-black dark:text-white">Laravel News</h2>
-
-                                    <p class="mt-4 text-sm/relaxed">
-                                        Laravel News is a community driven portal and newsletter aggregating all of the latest and most important news in the Laravel ecosystem, including new package releases and tutorials.
-                                    </p>
-                                </div>
-
-                                <svg class="size-6 shrink-0 self-center stroke-[#FF2D20]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"/></svg>
-                            </a>
-
-                            <div class="flex items-start gap-4 rounded-lg bg-white p-6 shadow-[0px_14px_34px_0px_rgba(0,0,0,0.08)] ring-1 ring-white/[0.05] lg:pb-10 dark:bg-zinc-900 dark:ring-zinc-800">
-                                <div class="flex size-12 shrink-0 items-center justify-center rounded-full bg-[#FF2D20]/10 sm:size-16">
-                                    <svg class="size-5 sm:size-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <g fill="#FF2D20">
-                                            <path
-                                                d="M16.597 12.635a.247.247 0 0 0-.08-.237 2.234 2.234 0 0 1-.769-1.68c.001-.195.03-.39.084-.578a.25.25 0 0 0-.09-.267 8.8 8.8 0 0 0-4.826-1.66.25.25 0 0 0-.268.181 2.5 2.5 0 0 1-2.4 1.824.045.045 0 0 0-.045.037 12.255 12.255 0 0 0-.093 3.86.251.251 0 0 0 .208.214c2.22.366 4.367 1.08 6.362 2.118a.252.252 0 0 0 .32-.079 10.09 10.09 0 0 0 1.597-3.733ZM13.616 17.968a.25.25 0 0 0-.063-.407A19.697 19.697 0 0 0 8.91 15.98a.25.25 0 0 0-.287.325c.151.455.334.898.548 1.328.437.827.981 1.594 1.619 2.28a.249.249 0 0 0 .32.044 29.13 29.13 0 0 0 2.506-1.99ZM6.303 14.105a.25.25 0 0 0 .265-.274 13.048 13.048 0 0 1 .205-4.045.062.062 0 0 0-.022-.07 2.5 2.5 0 0 1-.777-.982.25.25 0 0 0-.271-.149 11 11 0 0 0-5.6 2.815.255.255 0 0 0-.075.163c-.008.135-.02.27-.02.406.002.8.084 1.598.246 2.381a.25.25 0 0 0 .303.193 19.924 19.924 0 0 1 5.746-.438ZM9.228 20.914a.25.25 0 0 0 .1-.393 11.53 11.53 0 0 1-1.5-2.22 12.238 12.238 0 0 1-.91-2.465.248.248 0 0 0-.22-.187 18.876 18.876 0 0 0-5.69.33.249.249 0 0 0-.179.336c.838 2.142 2.272 4 4.132 5.353a.254.254 0 0 0 .15.048c1.41-.01 2.807-.282 4.117-.802ZM18.93 12.957l-.005-.008a.25.25 0 0 0-.268-.082 2.21 2.21 0 0 1-.41.081.25.25 0 0 0-.217.2c-.582 2.66-2.127 5.35-5.75 7.843a.248.248 0 0 0-.09.299.25.25 0 0 0 .065.091 28.703 28.703 0 0 0 2.662 2.12.246.246 0 0 0 .209.037c2.579-.701 4.85-2.242 6.456-4.378a.25.25 0 0 0 .048-.189 13.51 13.51 0 0 0-2.7-6.014ZM5.702 7.058a.254.254 0 0 0 .2-.165A2.488 2.488 0 0 1 7.98 5.245a.093.093 0 0 0 .078-.062 19.734 19.734 0 0 1 3.055-4.74.25.25 0 0 0-.21-.41 12.009 12.009 0 0 0-10.4 8.558.25.25 0 0 0 .373.281 12.912 12.912 0 0 1 4.826-1.814ZM10.773 22.052a.25.25 0 0 0-.28-.046c-.758.356-1.55.635-2.365.833a.25.25 0 0 0-.022.48c1.252.43 2.568.65 3.893.65.1 0 .2 0 .3-.008a.25.25 0 0 0 .147-.444c-.526-.424-1.1-.917-1.673-1.465ZM18.744 8.436a.249.249 0 0 0 .15.228 2.246 2.246 0 0 1 1.352 2.054c0 .337-.08.67-.23.972a.25.25 0 0 0 .042.28l.007.009a15.016 15.016 0 0 1 2.52 4.6.25.25 0 0 0 .37.132.25.25 0 0 0 .096-.114c.623-1.464.944-3.039.945-4.63a12.005 12.005 0 0 0-5.78-10.258.25.25 0 0 0-.373.274c.547 2.109.85 4.274.901 6.453ZM9.61 5.38a.25.25 0 0 0 .08.31c.34.24.616.561.8.935a.25.25 0 0 0 .3.127.631.631 0 0 1 .206-.034c2.054.078 4.036.772 5.69 1.991a.251.251 0 0 0 .267.024c.046-.024.093-.047.141-.067a.25.25 0 0 0 .151-.23A29.98 29.98 0 0 0 15.957.764a.25.25 0 0 0-.16-.164 11.924 11.924 0 0 0-2.21-.518.252.252 0 0 0-.215.076A22.456 22.456 0 0 0 9.61 5.38Z"
-                                            />
-                                        </g>
-                                    </svg>
-                                </div>
-
-                                <div class="pt-3 sm:pt-5">
-                                    <h2 class="text-xl font-semibold text-black dark:text-white">Vibrant Ecosystem</h2>
-
-                                    <p class="mt-4 text-sm/relaxed">
-                                        Laravel's robust library of first-party tools and libraries, such as <a href="https://forge.laravel.com" class="rounded-sm underline hover:text-black focus:outline-none focus-visible:ring-1 focus-visible:ring-[#FF2D20] dark:hover:text-white dark:focus-visible:ring-[#FF2D20]">Forge</a>, <a href="https://vapor.laravel.com" class="rounded-sm underline hover:text-black focus:outline-none focus-visible:ring-1 focus-visible:ring-[#FF2D20] dark:hover:text-white">Vapor</a>, <a href="https://nova.laravel.com" class="rounded-sm underline hover:text-black focus:outline-none focus-visible:ring-1 focus-visible:ring-[#FF2D20] dark:hover:text-white">Nova</a>, <a href="https://envoyer.io" class="rounded-sm underline hover:text-black focus:outline-none focus-visible:ring-1 focus-visible:ring-[#FF2D20] dark:hover:text-white">Envoyer</a>, and <a href="https://herd.laravel.com" class="rounded-sm underline hover:text-black focus:outline-none focus-visible:ring-1 focus-visible:ring-[#FF2D20] dark:hover:text-white">Herd</a> help you take your projects to the next level. Pair them with powerful open source libraries like <a href="https://laravel.com/docs/billing" class="rounded-sm underline hover:text-black focus:outline-none focus-visible:ring-1 focus-visible:ring-[#FF2D20] dark:hover:text-white">Cashier</a>, <a href="https://laravel.com/docs/dusk" class="rounded-sm underline hover:text-black focus:outline-none focus-visible:ring-1 focus-visible:ring-[#FF2D20] dark:hover:text-white">Dusk</a>, <a href="https://laravel.com/docs/broadcasting" class="rounded-sm underline hover:text-black focus:outline-none focus-visible:ring-1 focus-visible:ring-[#FF2D20] dark:hover:text-white">Echo</a>, <a href="https://laravel.com/docs/horizon" class="rounded-sm underline hover:text-black focus:outline-none focus-visible:ring-1 focus-visible:ring-[#FF2D20] dark:hover:text-white">Horizon</a>, <a href="https://laravel.com/docs/sanctum" class="rounded-sm underline hover:text-black focus:outline-none focus-visible:ring-1 focus-visible:ring-[#FF2D20] dark:hover:text-white">Sanctum</a>, <a href="https://laravel.com/docs/telescope" class="rounded-sm underline hover:text-black focus:outline-none focus-visible:ring-1 focus-visible:ring-[#FF2D20] dark:hover:text-white">Telescope</a>, and more.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </main>
-
-                    <footer class="py-16 text-center text-sm text-black dark:text-white/70">
-                        Laravel v{{ Illuminate\Foundation\Application::VERSION }} (PHP v{{ PHP_VERSION }})
-                    </footer>
+            <!-- Kartu Ilustrasi Alur Tri-Language (interaktif Alpine) -->
+            <div class="space-y-3" x-data="{ open: 'laravel' }">
+                <p class="text-[11px] font-black uppercase tracking-widest text-amber-300">Kartu Alur Tri-Language Engine</p>
+                <div class="grid grid-cols-1 gap-3">
+                    <button type="button" @click="open = 'laravel'" :class="open === 'laravel' ? 'border-bps-orange bg-white/15' : 'border-white/15 bg-white/5'"
+                        class="text-left w-full rounded-xl border-2 p-4 flex items-start space-x-4 transition-all">
+                        <span class="shrink-0 w-11 h-11 rounded-lg bg-rose-500/20 border border-rose-400/40 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-rose-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                        </span>
+                        <span class="min-w-0">
+                            <span class="block font-bold text-sm text-white">Laravel 11 Backend</span>
+                            <span class="block text-[12px] text-slate-300 leading-snug">Routing HTTP, Blade + Tailwind, RBAC peran, manajemen status &amp; deadline bab, transaksi MySQL 8.</span>
+                        </span>
+                    </button>
+                    <button type="button" @click="open = 'python'" :class="open === 'python' ? 'border-bps-orange bg-white/15' : 'border-white/15 bg-white/5'"
+                        class="text-left w-full rounded-xl border-2 p-4 flex items-start space-x-4 transition-all">
+                        <span class="shrink-0 w-11 h-11 rounded-lg bg-sky-500/20 border border-sky-400/40 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-sky-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z"/></svg>
+                        </span>
+                        <span class="min-w-0">
+                            <span class="block font-bold text-sm text-white">Python Analytics Worker</span>
+                            <span class="block text-[12px] text-slate-300 leading-snug">Pembersihan Excel dinas (merge cell, desimal), agregasi sekolah/Dapodik, matriks SKD (IKK, IPAK, Gap), render SVG matplotlib.</span>
+                        </span>
+                    </button>
+                    <button type="button" @click="open = 'typst'" :class="open === 'typst' ? 'border-bps-orange bg-white/15' : 'border-white/15 bg-white/5'"
+                        class="text-left w-full rounded-xl border-2 p-4 flex items-start space-x-4 transition-all">
+                        <span class="shrink-0 w-11 h-11 rounded-lg bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                        </span>
+                        <span class="min-w-0">
+                            <span class="block font-bold text-sm text-white">Typst 0.15 Typesetting Engine</span>
+                            <span class="block text-[12px] text-slate-300 leading-snug">Perakitan 100% PDF cetak standar BPS (300 DPI, font Roboto embed) oleh <code class="text-amber-300">typst.exe</code> CLI &mdash; tanpa DOMPDF.</span>
+                        </span>
+                    </button>
+                </div>
+                <!-- Logika komunikasi antar-engine (stream JSON stdout) -->
+                <div class="rounded-xl bg-black/30 border border-white/10 p-4 font-mono text-[11px] text-emerald-300 space-y-1 overflow-x-auto">
+                    <p><span class="text-slate-500">$</span> Laravel <span class="text-amber-300">-&gt;</span> Process <span class="text-amber-300">-&gt;</span> python.exe worker.py --json</p>
+                    <p><span class="text-slate-500">$</span> worker <span class="text-amber-300">-&gt;</span> stdout: { "status": "success", ... }</p>
+                    <p><span class="text-slate-500">$</span> Laravel <span class="text-amber-300">-&gt;</span> typst.exe compile storage/temp/*.typ -&gt; output_pdf/</p>
                 </div>
             </div>
         </div>
-    </body>
+    </section>
+
+                        Jelajahi 3 Pilar Publikasi
+                    </a>
+                </div>
+
+    <!-- ═══════════ 3 PILAR PUBLIKASI ═══════════ -->
+    <section id="pilar" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+        <div class="text-center max-w-2xl mx-auto mb-10">
+            <span class="text-[11px] font-black uppercase tracking-widest text-bps-orange">Pilar Publikasi Resmi</span>
+            <h2 class="text-2xl sm:text-3xl font-black text-bps-navy mt-1">Tiga Pilar Penerbitan Angka BPS Jember</h2>
+            <p class="text-sm text-slate-500 mt-2">Seluruh keluaran SI-PENA berdiri di atas tiga pilar publikasi yang dikerjakan dengan siklus mutu yang sama.</p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-6">
+            <!-- Pilar 1: 31 KDA -->
+            <article class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow group">
+                <div class="h-2 bg-bps-orange"></div>
+                <div class="p-6 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="w-12 h-12 rounded-xl bg-orange-50 text-bps-orange flex items-center justify-center group-hover:scale-105 transition-transform">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg>
+                        </span>
+                        <span class="text-3xl font-black text-slate-200">31</span>
+                    </div>
+                    <h3 class="font-extrabold text-bps-navy text-lg">Kecamatan Dalam Angka (KDA)</h3>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        Satu buku per kecamatan &mdash; seluruhnya <strong>31 kecamatan</strong> se-Kabupaten Jember.
+                        Memuat 7 bab standar: Geografi, Pemerintahan, Kependudukan, Sosial, Pertanian, Pariwisata, dan Perbankan.
+                    </p>
+                    <ul class="text-[11px] text-slate-500 space-y-1 border-t border-slate-100 pt-3">
+                        <li class="flex justify-between"><span>Format cetak</span><strong class="text-slate-700">A5</strong></li>
+                        <li class="flex justify-between"><span>Bahasa</span><strong class="text-slate-700">Indonesia + Inggris</strong></li>
+                        <li class="flex justify-between"><span>Motor kompilasi</span><strong class="text-slate-700">Typst CLI</strong></li>
+                    </ul>
+                </div>
+            </article>
+
+            <!-- Pilar 2: DDA -->
+            <article class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow group">
+                <div class="h-2 bg-emerald-600"></div>
+                <div class="p-6 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center group-hover:scale-105 transition-transform">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        </span>
+                        <span class="text-3xl font-black text-slate-200">DDA</span>
+                    </div>
+                    <h3 class="font-extrabold text-bps-navy text-lg">Kabupaten Dalam Angka</h3>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        Publikasi induk tingkat makro Kabupaten Jember dengan <strong>13 bab komprehensif</strong>
+                        &mdash; agregasi seluruh data 31 kecamatan, tren runtun waktu, dan capaian strategis daerah.
+                    </p>
+                    <ul class="text-[11px] text-slate-500 space-y-1 border-t border-slate-100 pt-3">
+                        <li class="flex justify-between"><span>Cakupan</span><strong class="text-slate-700">Kabupaten Jember</strong></li>
+                        <li class="flex justify-between"><span>Kolom narasi</span><strong class="text-slate-700">Bilingual dua kolom</strong></li>
+                        <li class="flex justify-between"><span>ISSN</span><strong class="text-slate-700">Terdaftar</strong></li>
+                    </ul>
+                </div>
+            </article>
+
+
+            <!-- Pilar 3: SKD -->
+            <article class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow group">
+                <div class="h-2 bg-indigo-600"></div>
+                <div class="p-6 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-700 flex items-center justify-center group-hover:scale-105 transition-transform">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                        </span>
+                        <span class="text-3xl font-black text-slate-200">SKD</span>
+                    </div>
+                    <h3 class="font-extrabold text-bps-navy text-lg">Analisis Survei Kebutuhan Data</h3>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        Evaluasi layanan Pelayanan Statistik Terpadu (PST): <strong>IKK</strong>, <strong>IPAK</strong>,
+                        dan Diagram Kartesius IPA atas 12 unsur pelayanan publik &mdash; dihitung mesin Python dari kuesioner VKD.
+                    </p>
+                    <ul class="text-[11px] text-slate-500 space-y-1 border-t border-slate-100 pt-3">
+                        <li class="flex justify-between"><span>Sumber data</span><strong class="text-slate-700">Berkas kuesioner VKD</strong></li>
+                        <li class="flex justify-between"><span>Metrik</span><strong class="text-slate-700">IKK &middot; IPAK &middot; Gap</strong></li>
+                        <li class="flex justify-between"><span>Integritas</span><strong class="text-slate-700">Tanpa angka tebakan</strong></li>
+                    </ul>
+                </div>
+            </article>
+        </div>
+    </section>
+
+
+    <!-- ═══════════ DIAGRAM INTERAKTIF ALUR PENERBITAN ═══════════ -->
+    <section id="alur" class="bg-white border-y border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14" x-data="{ step: 1 }">
+            <div class="text-center max-w-2xl mx-auto mb-10">
+                <span class="text-[11px] font-black uppercase tracking-widest text-bps-orange">Alur Penerbitan Angka Daerah</span>
+                <h2 class="text-2xl sm:text-3xl font-black text-bps-navy mt-1">Dari Berkas OPD Mentah sampai Buku Siap Cetak</h2>
+                <p class="text-sm text-slate-500 mt-2">Klik setiap simpul untuk melihat detail tahapan. Setiap angka melewati gerbang verifikasi sebelum dikunci.</p>
+            </div>
+
+            <!-- Diagram SVG interaktif -->
+            <div class="overflow-x-auto">
+                <svg viewBox="0 0 900 190" class="w-full min-w-[720px] h-auto" role="img" aria-label="Diagram alur penerbitan angka daerah SI-PENA">
+                    <defs>
+                        <marker id="arrowFlow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+                            <path d="M0,0 L9,4.5 L0,9 z" fill="#94A3B8"/>
+                        </marker>
+                    </defs>
+                    <line x1="165" y1="70" x2="215" y2="70" stroke="#94A3B8" stroke-width="3" marker-end="url(#arrowFlow)"/>
+                    <line x1="365" y1="70" x2="415" y2="70" stroke="#94A3B8" stroke-width="3" marker-end="url(#arrowFlow)"/>
+                    <line x1="565" y1="70" x2="615" y2="70" stroke="#94A3B8" stroke-width="3" marker-end="url(#arrowFlow)"/>
+                    <line x1="765" y1="70" x2="815" y2="70" stroke="#94A3B8" stroke-width="3" marker-end="url(#arrowFlow)"/>
+
+                    <g class="cursor-pointer" @click="step = 1">
+                        <rect x="20" y="35" width="145" height="70" rx="12" :fill="step === 1 ? '#0A3866' : '#F1F5F9'" :stroke="step === 1 ? '#E67E22' : '#E2E8F0'" stroke-width="3"/>
+                        <text x="92" y="65" text-anchor="middle" font-size="13" font-weight="800" :fill="step === 1 ? '#FFFFFF' : '#0A3866'">1. INGESTI</text>
+                        <text x="92" y="86" text-anchor="middle" font-size="10" :fill="step === 1 ? '#CBD5E1' : '#64748B'">Berkas Excel OPD</text>
+                    </g>
+                    <g class="cursor-pointer" @click="step = 2">
+                        <rect x="220" y="35" width="145" height="70" rx="12" :fill="step === 2 ? '#0A3866' : '#F1F5F9'" :stroke="step === 2 ? '#E67E22' : '#E2E8F0'" stroke-width="3"/>
+                        <text x="292" y="65" text-anchor="middle" font-size="13" font-weight="800" :fill="step === 2 ? '#FFFFFF' : '#0A3866'">2. PYTHON</text>
+                        <text x="292" y="86" text-anchor="middle" font-size="10" :fill="step === 2 ? '#CBD5E1' : '#64748B'">Bersih + Agregasi</text>
+                    </g>
+                    <g class="cursor-pointer" @click="step = 3">
+                        <rect x="420" y="35" width="145" height="70" rx="12" :fill="step === 3 ? '#0A3866' : '#F1F5F9'" :stroke="step === 3 ? '#E67E22' : '#E2E8F0'" stroke-width="3"/>
+                        <text x="492" y="65" text-anchor="middle" font-size="13" font-weight="800" :fill="step === 3 ? '#FFFFFF' : '#0A3866'">3. REDAKSI + QC</text>
+                        <text x="492" y="86" text-anchor="middle" font-size="10" :fill="step === 3 ? '#CBD5E1' : '#64748B'">Ulasan + Approval</text>
+                    </g>
+                    <g class="cursor-pointer" @click="step = 4">
+                        <rect x="620" y="35" width="145" height="70" rx="12" :fill="step === 4 ? '#0A3866' : '#F1F5F9'" :stroke="step === 4 ? '#E67E22' : '#E2E8F0'" stroke-width="3"/>
+                        <text x="692" y="65" text-anchor="middle" font-size="13" font-weight="800" :fill="step === 4 ? '#FFFFFF' : '#0A3866'">4. TYPST</text>
+                        <text x="692" y="86" text-anchor="middle" font-size="10" :fill="step === 4 ? '#CBD5E1' : '#64748B'">Kompilasi PDF 300 DPI</text>
+                    </g>
+                    <g class="cursor-pointer" @click="step = 5">
+                        <rect x="815" y="35" width="75" height="70" rx="12" :fill="step === 5 ? '#E67E22' : '#F1F5F9'" :stroke="step === 5 ? '#0A3866' : '#E2E8F0'" stroke-width="3"/>
+                        <text x="852" y="65" text-anchor="middle" font-size="13" font-weight="800" :fill="step === 5 ? '#FFFFFF' : '#64748B'">RILIS</text>
+                        <text x="852" y="86" text-anchor="middle" font-size="9" :fill="step === 5 ? '#FFF7ED' : '#94A3B8'">Final</text>
+                    </g>
+
+                    <line x1="20" y1="125" x2="890" y2="125" stroke="#E2E8F0" stroke-width="2" stroke-dasharray="6 6"/>
+                    <text x="20" y="150" font-size="12" font-weight="700" fill="#0A3866">
+                        <tspan x="20" dy="0">Status alur: PENDING_DATA &#8594; DATA_INGESTED &#8594; IN_EDITORIAL &#8594; PENDING_APPROVAL &#8594; APPROVED_LOCKED &#8594; FINAL_RELEASED</tspan>
+                        <tspan x="20" dy="22" font-size="11" font-weight="500" fill="#64748B">Transisi di luar peta status DITOLAK state machine &#8212; jejak audit tersimpan pada workflow_logs (SHA-256 versi berkas OPD).</tspan>
+                    </text>
+                </svg>
+            </div>
+
+
+            <!-- Panel detail langkah terpilih -->
+            <div class="mt-6 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="rounded-xl border p-4 text-xs leading-relaxed" :class="step === 1 ? 'border-bps-orange bg-orange-50' : 'border-slate-200 bg-slate-50'">
+                    <p class="font-black text-bps-navy uppercase text-[11px] mb-1">1 &middot; Ingesti Data OPD</p>
+                    <p class="text-slate-600">Operator OPD mengunggah Excel mentah (Dispendukcapil, Dinas Pendidikan, Pertanian, Dinsos). Setiap berkas dicatat dengan <strong>hash SHA-256</strong> dan nomor versi.</p>
+                </div>
+                <div class="rounded-xl border p-4 text-xs leading-relaxed" :class="step === 2 ? 'border-bps-orange bg-orange-50' : 'border-slate-200 bg-slate-50'">
+                    <p class="font-black text-bps-navy uppercase text-[11px] mb-1">2 &middot; Python Engine</p>
+                    <p class="text-slate-600">Worker Python membersihkan <em>merge cells</em>, menormalkan desimal koma/titik, mengagregasi data sekolah, lalu menyiapkan tabel siap simpan ke MySQL 8.</p>
+                </div>
+                <div class="rounded-xl border p-4 text-xs leading-relaxed" :class="step === 3 ? 'border-bps-orange bg-orange-50' : 'border-slate-200 bg-slate-50'">
+                    <p class="font-black text-bps-navy uppercase text-[11px] mb-1">3 &middot; Redaksi &amp; Quality Control</p>
+                    <p class="text-slate-600">Editor menyunting ulasan bilingual (ID/EN); Koordinator Publikasi memeriksa integritas tabel vs berkas OPD sebelum <strong>State Locking</strong>.</p>
+                </div>
+                <div class="rounded-xl border p-4 text-xs leading-relaxed" :class="(step === 4 || step === 5) ? 'border-bps-orange bg-orange-50' : 'border-slate-200 bg-slate-50'">
+                    <p class="font-black text-bps-navy uppercase text-[11px] mb-1">4 &middot; Kompilasi &amp; Rilis</p>
+                    <p class="text-slate-600">Antrean queue memanggil <code>typst.exe compile</code> untuk 31 KDA secara masal; PDF 300 DPI berfont Roboto siap diunduh dan dirilis.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ═══════════ KALENDER RILIS + SHOWCASE COVER ═══════════ -->
+    <section id="kalender" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+        <div class="grid lg:grid-cols-5 gap-8">
+            <!-- Timeline kalender rilis -->
+            <div class="lg:col-span-3">
+                <span class="text-[11px] font-black uppercase tracking-widest text-bps-orange">Kalender Rilis</span>
+                <h2 class="text-2xl font-black text-bps-navy mt-1 mb-1">Siklus Tahunan Penerbitan Angka Resmi</h2>
+                <p class="text-xs text-slate-500 mb-6">Kerangka siklus kerja tahunan BPS Kabupaten Jember; tanggal pasti setiap rilis mengikuti Kalender Rilis Data BPS yang ditetapkan tiap tahun.</p>
+
+                <ol class="relative border-l-2 border-bps-navy/20 ml-3 space-y-6">
+                    <li class="ml-6 relative">
+                        <span class="absolute -left-[31px] top-0 w-5 h-5 rounded-full bg-bps-orange ring-4 ring-orange-100"></span>
+                        <p class="text-[11px] font-black uppercase tracking-wide text-bps-orange">Kuartal I</p>
+                        <h3 class="font-bold text-sm text-bps-navy">Ingesti Data OPD &amp; Pemutakhiran Basis</h3>
+                        <p class="text-xs text-slate-600 mt-0.5">Pengumpulan berkas Excel dinas/OPD, pembersihan oleh Python Engine, dan penguncian basis data tahun terbit.</p>
+                    </li>
+                    <li class="ml-6 relative">
+                        <span class="absolute -left-[31px] top-0 w-5 h-5 rounded-full bg-bps-blue ring-4 ring-sky-100"></span>
+                        <p class="text-[11px] font-black uppercase tracking-wide text-bps-blue">Kuartal II</p>
+                        <h3 class="font-bold text-sm text-bps-navy">Redaksi Ulasan Bilingual &amp; QC</h3>
+                        <p class="text-xs text-slate-600 mt-0.5">Penyuntingan narasi ID/EN seluruh bab, verifikasi integritas tabel, hingga Approve &amp; Lock oleh Koordinator Publikasi.</p>
+                    </li>
+                    <li class="ml-6 relative">
+                        <span class="absolute -left-[31px] top-0 w-5 h-5 rounded-full bg-purple-600 ring-4 ring-purple-100"></span>
+                        <p class="text-[11px] font-black uppercase tracking-wide text-purple-700">Kuartal III</p>
+                        <h3 class="font-bold text-sm text-bps-navy">Kompilasi Masal 31 KDA + DDA</h3>
+                        <p class="text-xs text-slate-600 mt-0.5">Antrean batch Typst merakit buku A5 siap cetak; verifikasi proofing halaman cover, pembatas bab, dan tabel.</p>
+                    </li>
+                    <li class="ml-6 relative">
+                        <span class="absolute -left-[31px] top-0 w-5 h-5 rounded-full bg-emerald-600 ring-4 ring-emerald-100"></span>
+                        <p class="text-[11px] font-black uppercase tracking-wide text-emerald-700">Kuartal IV</p>
+                        <h3 class="font-bold text-sm text-bps-navy">Rilis Resmi &amp; Analisis SKD</h3>
+                        <p class="text-xs text-slate-600 mt-0.5">Publikasi final KDA/DDA diumumkan; Survei Kebutuhan Data diolah menjadi IKK, IPAK, dan diagram kartesius IPA.</p>
+                    </li>
+                </ol>
+            </div>
+
+
+            <!-- Showcase pratinjau mini cover publikasi unggulan -->
+            <div class="lg:col-span-2">
+                <span class="text-[11px] font-black uppercase tracking-widest text-bps-orange">Showcase Cover</span>
+                <h2 class="text-2xl font-black text-bps-navy mt-1 mb-6">Pratinjau Mini Publikasi Unggulan</h2>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <!-- Mini cover KDA -->
+                    <div class="aspect-[1/1.414] bg-bps-navy rounded-lg shadow-lg overflow-hidden p-3 flex flex-col justify-between border border-slate-300 hover:shadow-xl hover:-translate-y-1 transition-all">
+                        <div class="flex justify-between text-[6px] text-slate-300 font-semibold leading-tight">
+                            <span>BADAN PUSAT STATISTIK<br>KABUPATEN JEMBER</span>
+                            <span class="text-right">Katalog<br>1102001.3509</span>
+                        </div>
+                        <div>
+                            <div class="text-[11px] font-black uppercase leading-tight text-white">Kecamatan Dalam Angka</div>
+                            <div class="text-bps-orange font-extrabold text-[10px] mt-1">TAHUN {{ date('Y') }}</div>
+                            <div class="mt-2 h-1 w-10 bg-bps-orange rounded"></div>
+                        </div>
+                        <div class="border-t border-white/20 pt-1.5 text-[6px] text-slate-400">31 Edisi Kecamatan &middot; A5</div>
+                    </div>
+
+                    <!-- Mini cover DDA -->
+                    <div class="aspect-[1/1.414] bg-bps-darknavy rounded-lg shadow-lg overflow-hidden p-3 flex flex-col justify-between border border-slate-300 hover:shadow-xl hover:-translate-y-1 transition-all">
+                        <div class="flex justify-between text-[6px] text-slate-300 font-semibold leading-tight">
+                            <span>BADAN PUSAT STATISTIK<br>KABUPATEN JEMBER</span>
+                            <span class="text-right">ISSN<br>2548-8120</span>
+                        </div>
+                        <div>
+                            <div class="text-[10px] font-black uppercase leading-tight text-white">Kabupaten Jember Dalam Angka</div>
+                            <div class="text-bps-orange font-extrabold text-[10px] mt-1">TAHUN {{ date('Y') }}</div>
+                            <div class="mt-2 h-1 w-10 bg-emerald-500 rounded"></div>
+                        </div>
+                        <div class="border-t border-white/20 pt-1.5 text-[6px] text-slate-400">Publikasi Induk &middot; 13 Bab</div>
+                    </div>
+
+                    <!-- Mini cover SKD -->
+                    <div class="col-span-2 rounded-xl border border-indigo-200 bg-indigo-50 p-4 flex items-center space-x-4">
+                        <span class="shrink-0 w-11 h-11 rounded-lg bg-indigo-600 text-white flex items-center justify-center">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                        </span>
+                        <div class="min-w-0">
+                            <p class="font-bold text-xs text-indigo-900">Analisis SKD &mdash; Sampul Analisis</p>
+                            <p class="text-[11px] text-indigo-700 leading-snug">Diagram kartesius IPA + gauge IKK/IPAK dirender langsung oleh Python visualizers.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="text-[11px] text-slate-400 mt-4 leading-relaxed">
+                    Pratinjau bersifat ilustratif tata letak. Cover final dihasilkan engine Typst dari metadata publikasi (nomor katalog, ISSN, volume) &mdash; tanpa angka karangan.
+                </p>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ═══════════ KONTAK PST BPS JEMBER ═══════════ -->
+    <section id="kontak" class="bg-bps-navy text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 grid md:grid-cols-3 gap-8">
+            <div class="md:col-span-1">
+                @include('partials.bps-logo', ['class' => 'h-14 w-auto bg-white rounded-lg p-2 shadow-lg'])
+                <h2 class="text-xl font-black mt-4">Pelayanan Statistik Terpadu</h2>
+                <p class="text-sm text-slate-300 mt-1">BPS Kabupaten Jember &mdash; Kode Wilayah 3509</p>
+                <p class="text-xs text-slate-400 mt-3 leading-relaxed">
+                    Gerbang permintaan data, konsultasi statistik, dan pemesanan publikasi resmi BPS untuk
+                    pemerintah daerah, akademisi, media, dan masyarakat Kabupaten Jember.
+                </p>
+            </div>
+
+            <div class="md:col-span-1 space-y-4 text-sm">
+                <h3 class="text-[11px] font-black uppercase tracking-widest text-amber-300">Alamat &amp; Kanal Resmi</h3>
+                <div class="flex items-start space-x-3">
+                    <svg class="w-5 h-5 text-bps-orange shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    <p class="text-slate-200">Jl. Kalimantan No. 42, Jember 68121<br><span class="text-slate-400 text-xs">Jawa Timur, Indonesia</span></p>
+                </div>
+                <div class="flex items-start space-x-3">
+                    <svg class="w-5 h-5 text-bps-orange shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                    <p class="text-slate-200">www.jemberkab.bps.go.id<br><span class="text-slate-400 text-xs">Portal data &amp; publikasi daring BPS Jember</span></p>
+                </div>
+                <div class="flex items-start space-x-3">
+                    <svg class="w-5 h-5 text-bps-orange shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <p class="text-slate-200">Jam layanan PST: Senin &ndash; Jumat<br><span class="text-slate-400 text-xs">08.00 &ndash; 16.00 WIB (kecuali hari libur nasional)</span></p>
+                </div>
+            </div>
+
+            <div class="md:col-span-1 bg-white/10 border border-white/15 rounded-xl p-5 space-y-3">
+                <h3 class="text-[11px] font-black uppercase tracking-widest text-amber-300">Siap Bekerja?</h3>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                    Akses SI-PENA dibatasi untuk pegawai BPS Kabupaten Jember melalui jaringan intranet kantor
+                    sesuai peran masing-masing (Operator, Editor, Approver, Viewer).
+                </p>
+                <a href="{{ route('login') }}" class="inline-flex items-center justify-center w-full bg-bps-orange hover:bg-bps-darkorange text-white font-bold text-sm px-5 py-3 rounded-lg transition-colors shadow-lg">
+                    Masuk ke Halaman Autentikasi
+                </a>
+                <a href="{{ route('portal') }}" class="inline-flex items-center justify-center w-full bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold text-sm px-5 py-3 rounded-lg transition-colors">
+                    Muat Ulang Portal
+                </a>
+            </div>
+        </div>
+
+        <!-- Footer resmi -->
+        <footer class="border-t border-white/10">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
+                <p>&copy; {{ date('Y') }} <strong class="text-slate-200">SI-PENA</strong> &mdash; Badan Pusat Statistik Kabupaten Jember (3509)</p>
+                <p class="font-medium">Laravel 11 &middot; Python Engine &middot; Typst 0.15 &mdash; Server Intranet Offline-Ready</p>
+            </div>
+        </footer>
+    </section>
+
+</body>
 </html>
+
+            </div>

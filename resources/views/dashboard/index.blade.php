@@ -120,7 +120,7 @@
             <div>
                 <div class="flex items-center justify-between mb-3">
                     <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded">DDA (Buku Induk)</span>
-                    <span class="text-xs text-slate-500">Katalog: {{ $dda?->catalog_number ?? '1102001.3509' }}</span>
+                    <span class="text-xs text-slate-500">Katalog: {{ $dda?->catalog_number ?: 'Belum ada data' }}</span>
                 </div>
                 <h3 class="text-lg font-bold text-bps-navy">{{ $dda?->title ?? 'Kabupaten Jember Dalam Angka '.($activeYear ?? date('Y')) }}</h3>
                 <p class="text-xs text-slate-600 mt-1">Buku induk kompilasi 13 bab statistik sektoral dan regional Kabupaten Jember (Format B5).</p>
@@ -144,22 +144,127 @@
             <div>
                 <div class="flex items-center justify-between mb-3">
                     <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded">SKD (Analisis)</span>
-                    <span class="text-xs text-slate-500">ISSN: {{ $skd?->issn ?? '2548-8120' }}</span>
+                    <span class="text-xs text-slate-500">ISSN: {{ $skd?->issn ?: 'Belum ada data' }}</span>
                 </div>
                 <h3 class="text-lg font-bold text-bps-navy">{{ $skd?->title ?? 'Analisis Hasil Survei Kebutuhan Data '.($activeYear ?? date('Y')) }}</h3>
                 <p class="text-xs text-slate-600 mt-1">Laporan analitis kepuasan pengguna PST, Indeks IKK & IPAK, serta Diagram Kartesius IPA.</p>
             </div>
             <div class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
+                {{-- INTEGRITAS ANGKA: nilai IKK/IPAK TIDAK PERNAH ditulis di sini.
+                     Skor hanya tampil bila bersumber dari mesin SKD (cache JSON resmi);
+                     selain itu sistem menampilkan status, bukan angka tebakan. --}}
                 <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-semibold
                     @if($skd?->status == 'FINAL_RELEASED') bg-emerald-100 text-emerald-800
                     @elseif($skd?->status == 'APPROVED_LOCKED') bg-purple-100 text-purple-800
                     @else bg-blue-100 text-blue-800 @endif">
-                    IKK: 90.96 (Sangat Baik)
+                    @if($skd)
+                        IKK &amp; IPAK: Tersedia di Hasil Analisis
+                    @else
+                        IKK &amp; IPAK: Belum ada data
+                    @endif
                 </span>
                 <a href="{{ route('skd.index') }}" class="text-xs font-bold text-emerald-600 hover:underline">
                     Buka Hasil Analisis &rarr;
                 </a>
             </div>
+        </div>
+    </div>
+
+<!-- Executive Summary Penerbitan Tahun Berjalan -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+        <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+            <div class="flex-1">
+                <div class="flex items-center space-x-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-bps-orange"></span>
+                    <h2 class="text-base font-bold text-bps-navy uppercase tracking-wide">Executive Summary &mdash; Penerbitan {{ $activeYear ?? date('Y') }}</h2>
+                </div>
+                <p class="text-xs text-slate-600 mt-2 leading-relaxed max-w-3xl">
+                    Sepanjang tahun terbit <strong>{{ $activeYear ?? date('Y') }}</strong>, SI-PENA mengorkestrasi
+                    penerbitan <strong>31 Kecamatan Dalam Angka (KDA)</strong>, satu <strong>Kabupaten Jember Dalam Angka (DDA)</strong>,
+                    dan <strong>Analisis Survei Kebutuhan Data (SKD)</strong>. Seluruh angka berasal langsung dari berkas OPD
+                    yang diarsipkan berdasar hash SHA-256; sistem tidak pernah mengisi angka yang belum tersedia.
+                </p>
+            </div>
+            <div class="shrink-0 grid grid-cols-2 gap-3 text-center">
+                <div class="bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 min-w-[110px]">
+                    <p class="text-2xl font-black text-bps-navy">{{ array_sum($kdaStatusCounts) }}</p>
+                    <p class="text-[10px] uppercase tracking-wide text-slate-500 font-bold">Total KDA</p>
+                </div>
+                <div class="bg-emerald-50 border border-emerald-200 rounded-lg px-4 py-3 min-w-[110px]">
+                    <p class="text-2xl font-black text-emerald-700">{{ $kdaStatusCounts['FINAL_RELEASED'] ?? 0 }}</p>
+                    <p class="text-[10px] uppercase tracking-wide text-emerald-700 font-bold">KDA Rilis</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bar progres penyelesaian 31 KDA per status bab -->
+        @php
+            $kdaTotal = array_sum($kdaStatusCounts) ?: 1;
+            $progressSegments = [
+                ['key' => 'FINAL_RELEASED', 'label' => 'Final Rilis', 'class' => 'bg-emerald-500'],
+                ['key' => 'APPROVED_LOCKED', 'label' => 'Terkunci', 'class' => 'bg-purple-500'],
+                ['key' => 'PENDING_APPROVAL', 'label' => 'Menunggu QC', 'class' => 'bg-blue-500'],
+                ['key' => 'IN_EDITORIAL', 'label' => 'Redaksi', 'class' => 'bg-amber-500'],
+                ['key' => 'DATA_INGESTED', 'label' => 'Teringesti', 'class' => 'bg-sky-500'],
+                ['key' => 'PENDING_DATA', 'label' => 'Menunggu Data', 'class' => 'bg-slate-400'],
+            ];
+        @endphp
+        <div class="mt-4">
+            <div class="flex h-3 w-full rounded-full overflow-hidden bg-slate-100 border border-slate-200">
+                @foreach($progressSegments as $seg)
+                    @php $segCount = (int) ($kdaStatusCounts[$seg['key']] ?? 0); @endphp
+                    @if($segCount > 0)
+                        <div class="{{ $seg['class'] }}" style="width: {{ round($segCount * 100 / $kdaTotal, 2) }}%" title="{{ $seg['label'] }}: {{ $segCount }}"></div>
+                    @endif
+                @endforeach
+            </div>
+            <div class="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-[10px] font-semibold text-slate-500">
+                @foreach($progressSegments as $seg)
+                    <span class="inline-flex items-center"><span class="w-2 h-2 rounded-full {{ $seg['class'] }} mr-1"></span>{{ $seg['label'] }} ({{ (int) ($kdaStatusCounts[$seg['key']] ?? 0) }})</span>
+                @endforeach
+            </div>
+        </div>
+    </div>
+    <!-- Kartu Highlight Wilayah (Kecamatan Terluas, Terbanyak Desa, Total Wilayah) -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+            <div class="flex items-center space-x-2 text-bps-orange">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+                <span class="text-[10px] font-black uppercase tracking-wide">Kecamatan Terluas</span>
+            </div>
+            @if($widestDistrict)
+                <p class="text-lg font-black text-bps-navy mt-2">{{ $widestDistrict->name }}</p>
+                <p class="text-sm text-slate-600">{{ number_format((float) $widestDistrict->total_area_sqkm, 2, ',', '.') }} km&sup2;</p>
+                <p class="text-[11px] text-slate-400 mt-1">Ibukota: {{ $widestDistrict->capital_city }}</p>
+            @else
+                <p class="text-sm text-slate-400 mt-2 italic">Belum ada data wilayah.</p>
+            @endif
+        </div>
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+            <div class="flex items-center space-x-2 text-rose-600">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0121 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+                <span class="text-[10px] font-black uppercase tracking-wide">Kecamatan Terbanyak Desa</span>
+            </div>
+            @if($mostVillagesDistrict && (int) $mostVillagesDistrict->villages_count > 0)
+                <p class="text-lg font-black text-bps-navy mt-2">{{ $mostVillagesDistrict->name }}</p>
+                <p class="text-sm text-slate-600">{{ (int) $mostVillagesDistrict->villages_count }} desa/kelurahan</p>
+                <p class="text-[11px] text-slate-400 mt-1">Struktur wilayah administratif terbanyak</p>
+            @else
+                <p class="text-sm text-slate-400 mt-2 italic">Belum ada data desa terpetakan.</p>
+            @endif
+        </div>
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+            <div class="flex items-center space-x-2 text-emerald-600">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                <span class="text-[10px] font-black uppercase tracking-wide">Cakupan Wilayah</span>
+            </div>
+            @if($totalDistricts > 0)
+                <p class="text-lg font-black text-bps-navy mt-2">{{ $totalDistricts }} Kecamatan</p>
+                <p class="text-sm text-slate-600">Tercatat di basis wilayah BPS 3509</p>
+                <p class="text-[11px] text-slate-400 mt-1">Standar Kode Wilayah Kerja Statistik BPS</p>
+            @else
+                <p class="text-sm text-slate-400 mt-2 italic">Belum ada data wilayah.</p>
+            @endif
         </div>
     </div>
 
@@ -228,6 +333,113 @@
                     @endforelse
                 </tbody>
             </table>
+        </div>
+    </div>
+
+    <!-- Publikasi Unggulan (Thumbnail Cover DDA & SKD) + Siluet Vektor Wilayah -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Thumbnail Cover DDA -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col">
+            <h3 class="text-sm font-bold text-bps-navy mb-3">Cover Publikasi Induk (DDA)</h3>
+            <div class="mx-auto w-full max-w-[180px] aspect-[1/1.414] bg-bps-darknavy text-white rounded-lg shadow-lg overflow-hidden p-4 flex flex-col justify-between border border-slate-300">
+                <div class="flex justify-between text-[7px] text-slate-300 font-semibold leading-tight">
+                    <span>BADAN PUSAT<br>STATISTIK<br>KAB. JEMBER</span>
+                    <span class="text-right">Katalog<br>{{ $dda?->catalog_number ?: 'Belum ada data' }}</span>
+                </div>
+                <div>
+                    <div class="text-[11px] font-black uppercase leading-tight">{{ $dda?->title ?? 'Kabupaten Jember Dalam Angka' }}</div>
+                    <div class="text-bps-orange font-extrabold text-[10px] mt-1">TAHUN {{ $dda?->year ?? ($activeYear ?? date('Y')) }}</div>
+                    <div class="mt-2 h-1 w-10 bg-emerald-500 rounded"></div>
+                </div>
+                <div class="border-t border-white/20 pt-2 text-[7px] text-slate-400">
+                    <span class="block">ISSN: {{ $dda?->issn ?? '—' }}</span>
+                    <span class="block">Volume {{ $dda?->volume ?? '—' }}</span>
+                </div>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-3 text-center">13 bab komprehensif tingkat makro Kabupaten Jember.</p>
+        </div>
+
+        <!-- Thumbnail Cover SKD -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col">
+            <h3 class="text-sm font-bold text-bps-navy mb-3">Cover Analisis (SKD)</h3>
+            <div class="mx-auto w-full max-w-[180px] aspect-[1/1.414] bg-indigo-950 text-white rounded-lg shadow-lg overflow-hidden p-4 flex flex-col justify-between border border-slate-300 relative">
+                <svg class="absolute inset-0 w-full h-full opacity-10" viewBox="0 0 100 140" preserveAspectRatio="none"><circle cx="75" cy="40" r="22" fill="#E67E22"/><rect x="10" y="95" width="12" height="34" fill="#ffffff"/><rect x="26" y="82" width="12" height="47" fill="#ffffff"/><rect x="42" y="70" width="12" height="59" fill="#ffffff"/></svg>
+                <div class="relative flex justify-between text-[7px] text-indigo-200 font-semibold leading-tight">
+                    <span>BADAN PUSAT<br>STATISTIK<br>KAB. JEMBER</span>
+                    <span class="text-right">ISSN<br>{{ $skd?->issn ?: 'Belum ada data' }}</span>
+                </div>
+                <div class="relative">
+                    <div class="text-[11px] font-black uppercase leading-tight">{{ $skd?->title ?? 'Analisis Survei Kebutuhan Data' }}</div>
+                    <div class="text-bps-orange font-extrabold text-[10px] mt-1">TAHUN {{ $skd?->year ?? ($activeYear ?? date('Y')) }}</div>
+                    <div class="mt-2 h-1 w-10 bg-indigo-400 rounded"></div>
+                </div>
+                <div class="relative border-t border-white/20 pt-2 text-[7px] text-indigo-200">IKK &middot; IPAK &middot; Diagram Kartesius IPA</div>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-3 text-center">Hasil analisis layanan PST dari berkas kuesioner VKD.</p>
+        </div>
+
+        <!-- Siluet Vektor Pembagian Wilayah 31 Kecamatan -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col">
+            <h3 class="text-sm font-bold text-bps-navy mb-1">Pembagian Wilayah 31 Kecamatan</h3>
+            <p class="text-[11px] text-slate-400 mb-3">Siluet skematik grid &mdash; bukan peta geografis resmi.</p>
+            <div class="rounded-lg bg-slate-50 border border-slate-200 p-3">
+                <svg viewBox="0 0 310 150" class="w-full h-auto" role="img" aria-label="Siluet vektor 31 kecamatan Kabupaten Jember">
+                    @php
+                        $gridRows = [6, 7, 6, 6, 6]; // total 31 sel
+                        $cell = 46; $gap = 4; $idx = 0;
+                    @endphp
+                    @foreach($gridRows as $rowIdx => $cols)
+                        @for($colIdx = 0; $colIdx < $cols; $colIdx++)
+                            @php
+                                $x = $colIdx * ($cell + $gap) + 2;
+                                $y = $rowIdx * 26 + 4;
+                                $opacity = 0.25 + (($idx % 6) * 0.12);
+                            @endphp
+                            <rect x="{{ $x }}" y="{{ $y }}" width="{{ $cell }}" height="20" rx="4" fill="#0A3866" opacity="{{ number_format($opacity, 2) }}"/>
+                            @php $idx++; @endphp
+                        @endfor
+                    @endforeach
+                    <text x="2" y="148" font-size="9" fill="#64748B">{{ $totalDistricts }} kecamatan terdaftar &middot; Kode Wilayah 3509</text>
+                </svg>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-3">Setiap sel mewakili satu kecamatan; pemetaan kode BPS tersimpan di basis wilayah.</p>
+        </div>
+    </div>
+
+    <!-- Pratinjau Grafik Python Engine: Piramida Penduduk & Iklim/Curah Hujan -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+            <div class="flex items-center justify-between mb-3">
+                <div>
+                    <h3 class="text-sm font-bold text-bps-navy">Piramida Penduduk (Pratinjau)</h3>
+                    <p class="text-[11px] text-slate-400">visualizers/population_pyramid.py</p>
+                </div>
+                <span class="text-[10px] font-mono bg-slate-100 px-2 py-0.5 rounded text-slate-600">matplotlib SVG</span>
+            </div>
+            <div class="bg-slate-50 rounded-lg border border-slate-200 p-2 min-h-[220px] flex items-center justify-center overflow-hidden">
+                @if($pyramidSvg)
+                    <div class="w-full overflow-hidden">{!! file_get_contents(base_path($pyramidSvg)) !!}</div>
+                @else
+                    <p class="text-xs text-slate-400 text-center px-4">Grafik piramida penduduk belum dirender oleh Python Engine.</p>
+                @endif
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+            <div class="flex items-center justify-between mb-3">
+                <div>
+                    <h3 class="text-sm font-bold text-bps-navy">Ringkasan Iklim &amp; Curah Hujan (Pratinjau)</h3>
+                    <p class="text-[11px] text-slate-400">visualizers/climate_chart.py</p>
+                </div>
+                <span class="text-[10px] font-mono bg-slate-100 px-2 py-0.5 rounded text-slate-600">matplotlib SVG</span>
+            </div>
+            <div class="bg-slate-50 rounded-lg border border-slate-200 p-2 min-h-[220px] flex items-center justify-center overflow-hidden">
+                @if($climateSvg)
+                    <div class="w-full overflow-hidden">{!! file_get_contents(base_path($climateSvg)) !!}</div>
+                @else
+                    <p class="text-xs text-slate-400 text-center px-4">Grafik curah hujan bulanan belum dirender oleh Python Engine.</p>
+                @endif
+            </div>
         </div>
     </div>
 

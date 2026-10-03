@@ -43,3 +43,41 @@ Artisan::command('sipena:qa-reset', function () {
 
     return 0;
 })->purpose('Reset fixture QA SI-PENA agar skrip pengujian dapat diulang');
+
+/*
+|--------------------------------------------------------------------------
+| Pembersihan Berkas Sementara SI-PENA
+|--------------------------------------------------------------------------
+| `php artisan sipena:cleanup-temp {--days=7}`
+| Membersihkan berkas .typ dan artefak sementara yang berumur lebih dari N hari
+| agar direktori storage/temp tidak membebani kapasitas disk server.
+*/
+Artisan::command('sipena:cleanup-temp {--days=7 : Hapus berkas lebih tua dari N hari}', function () {
+    $days = (int) $this->option('days');
+    $tempDir = storage_path('temp');
+
+    if (! is_dir($tempDir)) {
+        $this->info('Direktori storage/temp tidak ditemukan.');
+
+        return 0;
+    }
+
+    $cutoff = time() - ($days * 86400);
+    $deleted = 0;
+
+    foreach (scandir($tempDir) as $item) {
+        if (in_array($item, ['.', '..', '.gitignore'], true)) {
+            continue;
+        }
+
+        $path = $tempDir.DIRECTORY_SEPARATOR.$item;
+        if (is_file($path) && filemtime($path) < $cutoff) {
+            @unlink($path);
+            $deleted++;
+        }
+    }
+
+    $this->info("Pembersihan selesai: {$deleted} berkas sementara (lebih tua dari {$days} hari) berhasil dihapus.");
+
+    return 0;
+})->purpose('Bersihkan berkas Typst dan artefak sementara di storage/temp')->daily();

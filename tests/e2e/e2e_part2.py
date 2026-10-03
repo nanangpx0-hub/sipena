@@ -1,4 +1,4 @@
-"""SI-PENA E2E part 2/4: suites 1-3."""
+﻿"""SI-PENA E2E part 2/4: suites 1-3."""
 import os, re
 from e2e_part1 import get, req, putf, csrf, snap, check, login_as, make_dummy_xlsx, ROOT
 def suite1():
@@ -34,7 +34,7 @@ def suite2():
     check("S2.form_mode", ('name="data_mode"' in html and "DIRECT" in html and "AGGREGATE_SCHOOL" in html and "SKD_VKD" in html), "mode ekstraksi")
     check("S2.form_file", 'name="excel_file"' in html, "filepicker")
     # Pilih publikasi fixture QA (hasil sipena:qa-reset -> PENDING_DATA); fallback: opsi tak terkunci.
-    opts = [(v.decode(), t.decode("utf-8", "ignore")) for v, t in re.findall(rb'<option value="(\d+)"[^>]*>([^<]*)</option>', b)]
+    opts = [(v.decode(), t.decode("utf-8", "ignore")) for v, t in re.findall(rb'<option\s+value="(\d+)"[^>]*>([^<]*)</option>', b)]
     fixture = [v for v, t in opts if "Uji Ingesti QA" in t]
     unlocked = [v for v, t in opts if "TERKUNCI" not in t]
     pub_id = (fixture or unlocked or [None])[0]
@@ -77,7 +77,7 @@ def suite3():
     check("S3.editorial_http200", s == 200, "GET /editorial -> %s" % s)
     # Pilih publikasi fixture QA (belum terkunci) agar pengujian redaksi tidak
     # menyentuh publikasi final yang dijaga state machine.
-    opts = [(v.decode(), t) for v, t in re.findall(rb'<option value="(\d+)"[^>]*>([^<]*)</option>', b)]
+    opts = [(v.decode(), t) for v, t in re.findall(rb'<option\s+value="(\d+)"[^>]*>([^<]*)</option>', b)]
     fixture = [v for v, t in opts if b"Uji Ingesti QA" in t]
     unlocked = [v for v, t in opts if b"TERKUNCI" not in t]
     target = (fixture or unlocked or [None])[0]
@@ -87,7 +87,7 @@ def suite3():
     m = re.search(rb'/editorial/(\d+)/edit', b)
     eid = m.group(1).decode() if m else None
     if not eid:
-        # SELF-HEAL probe: default mungkin publikasi tanpa narasi — pilih publikasi ber-narasi
+        # SELF-HEAL probe: default mungkin publikasi tanpa narasi â€” pilih publikasi ber-narasi
         import urllib.parse as _up
         s0, _, b0, _ = get("/editorial?publication_id=3")
         m0 = re.search(rb'/editorial/(\d+)/edit', b0)

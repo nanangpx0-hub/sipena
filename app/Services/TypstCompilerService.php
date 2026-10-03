@@ -52,6 +52,8 @@ class TypstCompilerService
         $process->setTimeout($timeout);
         $process->setWorkingDirectory(base_path());
 
+        // Penanda waktu render: tri-language engine wajib dapat diukur nyata.
+        $startedAt = microtime(true);
         $process->run();
 
         if (! $process->isSuccessful()) {
@@ -62,11 +64,16 @@ class TypstCompilerService
             throw new Exception("Gagal menghasilkan berkas output PDF di: {$fullOutput}");
         }
 
+        // Durasi render nyata (milidetik) dibungkus agar dapat dilaporkan mesin
+        // tanpa dependensi eksternal; lapisan tampilan memutuskan ms/halaman.
+        $durationMs = (int) round((microtime(true) - $startedAt) * 1000);
+
         return [
             'status' => 'success',
             'input' => $inputTypPath,
             'output_pdf' => $outputPdfPath,
             'file_size_bytes' => filesize($fullOutput),
+            'duration_ms' => $durationMs,
         ];
     }
 

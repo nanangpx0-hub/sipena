@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Publication;
+use App\Support\ActiveYear;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
@@ -11,6 +13,9 @@ class AuthController extends Controller
 {
     /**
      * Tampilkan formulir login intranet SI-PENA.
+     *
+     * Panel branding kanan memuat widget statistik status rilis TAHUN AKTIF
+     * yang dihitung langsung dari database — tanpa angka hardcode.
      */
     public function showLogin(Request $request)
     {
@@ -18,7 +23,25 @@ class AuthController extends Controller
             return redirect()->route('dashboard');
         }
 
-        return view('auth.login');
+        $activeYear = ActiveYear::get();
+
+        $statusCounts = $activeYear !== null
+            ? Publication::selectRaw('status, count(*) as count')
+                ->where('year', $activeYear)
+                ->groupBy('status')
+                ->pluck('count', 'status')
+                ->toArray()
+            : [];
+
+        $totalPubs = array_sum($statusCounts);
+
+        return view('auth.login', [
+            'activeYear' => $activeYear,
+            'statusCounts' => $statusCounts,
+            'totalPubs' => $totalPubs,
+            'releasedCount' => (int) ($statusCounts['FINAL_RELEASED'] ?? 0),
+            'lockedCount' => (int) ($statusCounts['APPROVED_LOCKED'] ?? 0),
+        ]);
     }
 
     /**

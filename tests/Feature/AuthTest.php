@@ -36,7 +36,7 @@ class AuthTest extends TestCase
         $user = User::factory()->create([
             'email' => 'qa@bps3509.go.id',
             'password' => bcrypt('rahasia123'),
-            'role_id' => Role::where('name', 'approver')->value('id'),
+            'role_id' => Role::where('name', 'admin')->value('id'),
             'is_active' => true,
         ]);
 

@@ -89,7 +89,7 @@ class PublicationStateMachineTest extends TestCase
     {
         $this->seed(RoleSeeder::class);
         $editor = User::factory()->create([
-            'role_id' => Role::where('name', 'editor')->value('id'),
+            'role_id' => Role::where('name', 'admin')->value('id'),
             'is_active' => true,
         ]);
 
@@ -119,7 +119,7 @@ class PublicationStateMachineTest extends TestCase
     {
         $this->seed(RoleSeeder::class);
         $approver = User::factory()->create([
-            'role_id' => Role::where('name', 'approver')->value('id'),
+            'role_id' => Role::where('name', 'admin')->value('id'),
             'is_active' => true,
         ]);
 

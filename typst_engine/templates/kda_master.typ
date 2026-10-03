@@ -29,6 +29,11 @@
   team: (),
   has_tables: true,
   has_body: true,
+  custom_cover_path: "",
+  preface_id: "",
+  preface_en: "",
+  sign_date: "",
+  custom_abbr: (),
   body,
 ) = {
   // Halaman sesuai contoh resmi KCA: A5 (14,8 cm x 21 cm).
@@ -66,6 +71,7 @@
     catalog_no: catalog_no,
     pub_no: pub_no,
     issn: issn,
+    bg_image_path: custom_cover_path,
     next_section: "HALAMAN JUDUL",
   )
 
@@ -85,48 +91,66 @@
   team-section(entries: team)
   contributors-section(names: contributors)
 
-  preface-id(
-    [
-      Publikasi *Kecamatan #district_name Dalam Angka #year* merupakan publikasi berkala
-      tahunan yang diterbitkan oleh Badan Pusat Statistik (BPS) Kabupaten Jember. Publikasi
-      ini menyajikan statistik dan informasi penting tentang potensi, perkembangan sosial,
-      dan ekonomi di Kecamatan #district_name. Data pada publikasi ini merupakan hasil
-      pengolahan data dari instansi pemerintah dan lembaga yang menjadi kontributor data.
+  if preface_id != "" {
+    preface-id(
+      preface_id,
+      sign_date: if sign_date != "" { sign_date } else { "Jember, September " + year },
+    )
+  } else {
+    preface-id(
+      [
+        Publikasi *Kecamatan #district_name Dalam Angka #year* merupakan publikasi berkala
+        tahunan yang diterbitkan oleh Badan Pusat Statistik (BPS) Kabupaten Jember. Publikasi
+        ini menyajikan statistik dan informasi penting tentang potensi, perkembangan sosial,
+        dan ekonomi di Kecamatan #district_name. Data pada publikasi ini merupakan hasil
+        pengolahan data dari instansi pemerintah dan lembaga yang menjadi kontributor data.
 
-      Kepada seluruh pihak yang telah memberikan bantuan dan partisipasi hingga terbitnya
-      publikasi ini, disampaikan terima kasih dan penghargaan yang setinggi-tingginya.
-    ],
-    sign_date: "Jember, September " + year,
-  )
+        Kepada seluruh pihak yang telah memberikan bantuan dan partisipasi hingga terbitnya
+        publikasi ini, disampaikan terima kasih dan penghargaan yang setinggi-tingginya.
+      ],
+      sign_date: if sign_date != "" { sign_date } else { "Jember, September " + year },
+    )
+  }
 
-  preface-en(
-    [
-      *#district_name Subdistrict in Figures #year* is an annual publication published by
-      BPS-Statistics of Jember Regency. This publication presents vital statistics and
-      information regarding the potential, social, and economic development in #district_name
-      Subdistrict. The data are compiled from government agencies and institutions acting
-      as data contributors.
+  if preface_en != "" {
+    preface-en(
+      preface_en,
+      sign_date: if sign_date != "" { sign_date } else { "Jember, September " + year },
+    )
+  } else {
+    preface-en(
+      [
+        *#district_name Subdistrict in Figures #year* is an annual publication published by
+        BPS-Statistics of Jember Regency. This publication presents vital statistics and
+        information regarding the potential, social, and economic development in #district_name
+        Subdistrict. The data are compiled from government agencies and institutions acting
+        as data contributors.
 
-      To all parties who have contributed and supported the publication of this edition, we
-      would like to express our highest gratitude and appreciation.
-    ],
-    sign_date: "Jember, September " + year,
-  )
+        To all parties who have contributed and supported the publication of this edition, we
+        would like to express our highest gratitude and appreciation.
+      ],
+      sign_date: if sign_date != "" { sign_date } else { "Jember, September " + year },
+    )
+  }
 
   toc-page()
   if has_tables { tables-index() }
   explanatory-notes()
-  abbreviations(terms: (
-    ("BPS", "Badan Pusat Statistik", "Statistics Indonesia"),
-    ("KDA", "Kecamatan Dalam Angka", "District in Figures"),
-    ("DDA", "Kabupaten Dalam Angka", "Regency in Figures"),
-    ("rb", "ribu", "thousand"),
-    ("jt", "juta", "million"),
-    ("%", "persen", "percent"),
-    ("dpl", "di atas permukaan laut", "above sea level"),
-    ("km", "kilometer", "kilometer"),
-    ("ha", "hektar", "hectare"),
-  ))
+
+  let abbr_terms_list = if custom_abbr.len() > 0 { custom_abbr } else {
+    (
+      ("BPS", "Badan Pusat Statistik", "Statistics Indonesia"),
+      ("KDA", "Kecamatan Dalam Angka", "District in Figures"),
+      ("DDA", "Kabupaten Dalam Angka", "Regency in Figures"),
+      ("rb", "ribu", "thousand"),
+      ("jt", "juta", "million"),
+      ("%", "persen", "percent"),
+      ("dpl", "di atas permukaan laut", "above sea level"),
+      ("km", "kilometer", "kilometer"),
+      ("ha", "hektar", "hectare"),
+    )
+  }
+  abbreviations(terms: abbr_terms_list)
 
   // Mulai isi: angka romawi -> arabik sejak halaman pertama isi.
   context { front-pages.update(counter(page).get().first()) }

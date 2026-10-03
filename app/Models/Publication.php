@@ -37,12 +37,17 @@ class Publication extends Model
         'status',
         'soft_deadline',
         'hard_deadline',
+        'preface_id',
+        'preface_en',
+        'sign_date',
+        'custom_abbreviations',
     ];
 
     protected $casts = [
         'soft_deadline' => 'datetime',
         'hard_deadline' => 'datetime',
         'year' => 'integer',
+        'custom_abbreviations' => 'array',
     ];
 
     public function district(): BelongsTo
@@ -73,6 +78,11 @@ class Publication extends Model
     public function workflowLogs(): HasMany
     {
         return $this->hasMany(WorkflowLog::class);
+    }
+
+    public function teamMembers(): HasMany
+    {
+        return $this->hasMany(PublicationTeamMember::class)->orderBy('sort_order');
     }
 
     /**

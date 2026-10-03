@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 class EnsureUserHasRole
 {
     /**
-     * Otorisasi berbasis peran RBAC: role:approver,editor  |  role:operator
+     * Otorisasi berbasis peran RBAC: role:admin  |  role:operator,admin  |  role:admin,viewer
      */
     public function handle(Request $request, Closure $next, string ...$roles): Response
     {

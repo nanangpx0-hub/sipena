@@ -19,14 +19,9 @@ class RoleSeeder extends Seeder
                 'description' => 'Mengunggah file Excel mentah OPD, mencocokkan mapping kolom, dan memverifikasi data tabel.',
             ],
             [
-                'name' => 'editor',
-                'display_name' => 'Editor Bahasa & Ulasan (Editorial Specialist)',
-                'description' => 'Menyunting teks ulasan bab bilingual (ID/EN), menyesuaikan redaksi, dan upload aset visual.',
-            ],
-            [
-                'name' => 'approver',
-                'display_name' => 'Ketua Tim / Approver (Koordinator Tim)',
-                'description' => 'Memvalidasi konsistensi tabel, mengunci status bab, menyetujui draf, dan kompilasi PDF final.',
+                'name' => 'admin',
+                'display_name' => 'Administrator / Ketua Tim & Editor Bahasa',
+                'description' => 'Hak penuh: menyunting ulasan bab, mengunci & menyetujui publikasi, mengunggah aset, serta kompilasi PDF final.',
             ],
             [
                 'name' => 'viewer',

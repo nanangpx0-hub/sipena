@@ -29,6 +29,7 @@
   ikk_score: "90.96",
   ipak_score: "90.33",
   ikk_mutu: "",
+  custom_cover_path: "",
   body,
 ) = {
   // Halaman sesuai contoh SKD: 18,2 cm x 25,7 cm.
@@ -69,6 +70,7 @@
     catalog_no: catalog_no,
     pub_no: pub_no,
     issn: issn,
+    bg_image_path: custom_cover_path,
     next_section: "HALAMAN JUDUL",
   )
 

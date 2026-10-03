@@ -39,12 +39,13 @@ class RbacTest extends TestCase
         $this->actingAs($operator)->get('/editorial')->assertRedirect()->assertSessionHas('error');
     }
 
-    public function test_editor_can_open_editorial_but_not_ingestion(): void
+    public function test_admin_can_open_editorial_ingestion_and_approval(): void
     {
-        $editor = $this->userWith('editor');
+        $admin = $this->userWith('admin');
 
-        $this->actingAs($editor)->get('/editorial')->assertOk();
-        $this->actingAs($editor)->get('/ingestion')->assertRedirect()->assertSessionHas('error');
+        $this->actingAs($admin)->get('/editorial')->assertOk();
+        $this->actingAs($admin)->get('/ingestion')->assertOk();
+        $this->actingAs($admin)->get('/approval')->assertOk();
     }
 
     public function test_viewer_is_read_only(): void
@@ -73,10 +74,10 @@ class RbacTest extends TestCase
             ->assertSessionHas('error');
     }
 
-    public function test_approver_can_open_approval_queue(): void
+    public function test_admin_can_open_approval_queue(): void
     {
-        $approver = $this->userWith('approver');
+        $admin = $this->userWith('admin');
 
-        $this->actingAs($approver)->get('/approval')->assertOk();
+        $this->actingAs($admin)->get('/approval')->assertOk();
     }
 }

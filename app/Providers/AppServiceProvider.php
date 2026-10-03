@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Services\EngineStatusService;
 use App\Support\ActiveYear;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -27,6 +28,7 @@ class AppServiceProvider extends ServiceProvider
             $view->with([
                 'activeYear' => ActiveYear::get(),
                 'availableYears' => ActiveYear::availableYears(),
+                'engineStatus' => app(EngineStatusService::class)->status(),
             ]);
         });
     }

@@ -28,6 +28,11 @@
   team: (),
   has_tables: true,
   has_body: true,
+  custom_cover_path: "",
+  preface_id: "",
+  preface_en: "",
+  sign_date: "",
+  custom_abbr: (),
   body,
 ) = {
   // Halaman sesuai contoh resmi: A5 (14,8 cm x 21 cm).
@@ -66,6 +71,7 @@
     catalog_no: catalog_no,
     pub_no: pub_no,
     issn: issn,
+    bg_image_path: custom_cover_path,
     next_section: "HALAMAN JUDUL",
   )
 
@@ -85,51 +91,69 @@
   team-section(entries: team)
   contributors-section(names: contributors)
 
-  preface-id(
-    [
-      Publikasi *Kabupaten Jember Dalam Angka #year* merupakan publikasi komprehensif
-      tahunan yang diterbitkan oleh Badan Pusat Statistik (BPS) Kabupaten Jember. Buku ini
-      menyajikan data statistik sektoral dan data dasar yang mencakup kondisi geografi,
-      sosial demografi, dan ekonomi di Kabupaten Jember. Data pada publikasi ini merupakan
-      hasil pengolahan data dari instansi pemerintah dan lembaga yang menjadi kontributor
-      data, sehingga diharapkan dapat digunakan sebagai referensi perencanaan dan evaluasi
-      pembangunan di Kabupaten Jember.
+  if preface_id != "" {
+    preface-id(
+      preface_id,
+      sign_date: if sign_date != "" { sign_date } else { "Jember, September " + year },
+    )
+  } else {
+    preface-id(
+      [
+        Publikasi *Kabupaten Jember Dalam Angka #year* merupakan publikasi komprehensif
+        tahunan yang diterbitkan oleh Badan Pusat Statistik (BPS) Kabupaten Jember. Buku ini
+        menyajikan data statistik sektoral dan data dasar yang mencakup kondisi geografi,
+        sosial demografi, dan ekonomi di Kabupaten Jember. Data pada publikasi ini merupakan
+        hasil pengolahan data dari instansi pemerintah dan lembaga yang menjadi kontributor
+        data, sehingga diharapkan dapat digunakan sebagai referensi perencanaan dan evaluasi
+        pembangunan di Kabupaten Jember.
 
-      Kepada seluruh pihak yang telah memberikan bantuan dan partisipasi hingga terbitnya
-      publikasi ini, disampaikan terima kasih dan penghargaan yang setinggi-tingginya.
-    ],
-    sign_date: "Jember, September " + year,
-  )
+        Kepada seluruh pihak yang telah memberikan bantuan dan partisipasi hingga terbitnya
+        publikasi ini, disampaikan terima kasih dan penghargaan yang setinggi-tingginya.
+      ],
+      sign_date: if sign_date != "" { sign_date } else { "Jember, September " + year },
+    )
+  }
 
-  preface-en(
-    [
-      *Jember Regency in Figures #year* is an annual comprehensive publication published by
-      BPS-Statistics of Jember Regency. This book presents sectoral statistical data and
-      fundamental indicators covering geography, social demography, and economics in Jember
-      Regency. The data in this publication are compiled from government agencies and
-      institutions acting as data contributors, and are expected to serve as a reference
-      for development planning and evaluation in Jember Regency.
+  if preface_en != "" {
+    preface-en(
+      preface_en,
+      sign_date: if sign_date != "" { sign_date } else { "Jember, September " + year },
+    )
+  } else {
+    preface-en(
+      [
+        *Jember Regency in Figures #year* is an annual comprehensive publication published by
+        BPS-Statistics of Jember Regency. This book presents sectoral statistical data and
+        fundamental indicators covering geography, social demography, and economics in Jember
+        Regency. The data in this publication are compiled from government agencies and
+        institutions acting as data contributors, and are expected to serve as a reference
+        for development planning and evaluation in Jember Regency.
 
-      Our highest gratitude goes to all parties who have contributed and supported the
-      publication of this edition.
-    ],
-    sign_date: "Jember, September " + year,
-  )
+        Our highest gratitude goes to all parties who have contributed and supported the
+        publication of this edition.
+      ],
+      sign_date: if sign_date != "" { sign_date } else { "Jember, September " + year },
+    )
+  }
 
   toc-page()
   if has_tables { tables-index() }
   explanatory-notes()
-  abbreviations(terms: (
-    ("BPS", "Badan Pusat Statistik", "Statistics Indonesia"),
-    ("DDA", "Kabupaten Dalam Angka", "Regency in Figures"),
-    ("KDA", "Kecamatan Dalam Angka", "District in Figures"),
-    ("rb", "ribu", "thousand"),
-    ("jt", "juta", "million"),
-    ("%", "persen", "percent"),
-    ("dpl", "di atas permukaan laut", "above sea level"),
-    ("km", "kilometer", "kilometer"),
-    ("ha", "hektar", "hectare"),
-  ))
+
+  let abbr_terms_list = if custom_abbr.len() > 0 { custom_abbr } else {
+    (
+      ("BPS", "Badan Pusat Statistik", "Statistics Indonesia"),
+      ("DDA", "Kabupaten Dalam Angka", "Regency in Figures"),
+      ("KDA", "Kecamatan Dalam Angka", "District in Figures"),
+      ("rb", "ribu", "thousand"),
+      ("jt", "juta", "million"),
+      ("%", "persen", "percent"),
+      ("dpl", "di atas permukaan laut", "above sea level"),
+      ("km", "kilometer", "kilometer"),
+      ("ha", "hektar", "hectare"),
+    )
+  }
+  abbreviations(terms: abbr_terms_list)
 
   // Mulai isi: angka romawi -> arabik sejak halaman pertama isi.
   context { front-pages.update(counter(page).get().first()) }

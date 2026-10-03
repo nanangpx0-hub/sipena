@@ -51,7 +51,7 @@ class EditorialFlowTest extends TestCase
 
     public function test_editor_update_moves_publication_to_editorial(): void
     {
-        $editor = $this->userWith('editor');
+        $editor = $this->userWith('admin');
 
         $this->actingAs($editor)
             ->put("/editorial/{$this->narrative->id}", [
@@ -68,7 +68,7 @@ class EditorialFlowTest extends TestCase
 
     public function test_editor_can_submit_to_approver_once(): void
     {
-        $editor = $this->userWith('editor');
+        $editor = $this->userWith('admin');
         $this->publication->update(['status' => 'IN_EDITORIAL']);
 
         $this->actingAs($editor)
@@ -87,7 +87,7 @@ class EditorialFlowTest extends TestCase
 
     public function test_locked_publication_cannot_be_submitted(): void
     {
-        $editor = $this->userWith('editor');
+        $editor = $this->userWith('admin');
         $this->publication->update(['status' => 'APPROVED_LOCKED']);
 
         $this->actingAs($editor)

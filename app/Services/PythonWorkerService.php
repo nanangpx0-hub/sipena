@@ -136,26 +136,69 @@ class PythonWorkerService
     }
 
     /**
-     * Render grafik piramida penduduk
+     * Render grafik piramida penduduk.
+     *
+     * $data opsional (males/females per kelompok umur) berasal dari tabel
+     * ingesti; tanpa data worker memakai pola bawaan yang terpasang di skrip.
      */
-    public function renderPopulationPyramid(string $outputSvg, string $district = 'Kabupaten Jember', int $year = 2026): array
+    public function renderPopulationPyramid(string $outputSvg, string $district = 'Kabupaten Jember', int $year = 2026, ?array $data = null): array
     {
-        return $this->execute('python_engine/visualizers/population_pyramid.py', [
+        $args = [
             '--output', $outputSvg,
             '--district', $district,
             '--year', (string) $year,
-        ]);
+        ];
+        if ($data !== null) {
+            $args[] = '--data-json';
+            $args[] = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        }
+
+        return $this->execute('python_engine/visualizers/population_pyramid.py', $args);
     }
 
     /**
-     * Render grafik curah hujan bulanan
+     * Render grafik curah hujan bulanan.
+     *
+     * $data opsional (rainfall/rain_days per bulan) berasal dari tabel ingesti.
      */
-    public function renderClimateChart(string $outputSvg, string $district = 'Kabupaten Jember', int $year = 2026): array
+    public function renderClimateChart(string $outputSvg, string $district = 'Kabupaten Jember', int $year = 2026, ?array $data = null): array
     {
-        return $this->execute('python_engine/visualizers/climate_chart.py', [
+        $args = [
             '--output', $outputSvg,
             '--district', $district,
             '--year', (string) $year,
-        ]);
+        ];
+        if ($data !== null) {
+            $args[] = '--data-json';
+            $args[] = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        }
+
+        return $this->execute('python_engine/visualizers/climate_chart.py', $args);
+    }
+
+    /**
+     * Menghasilkan berkas template Excel (.xlsx) resmi untuk Ingesti OPD
+     */
+    public function generateExcelTemplate(string $type, string $outputPath, array $options = []): array
+    {
+        $args = [
+            '--type', $type,
+            '--output', $outputPath,
+        ];
+
+        if (! empty($options['scope'])) {
+            $args[] = '--scope';
+            $args[] = $options['scope'];
+        }
+        if (! empty($options['district'])) {
+            $args[] = '--district';
+            $args[] = $options['district'];
+        }
+        if (! empty($options['villages'])) {
+            $args[] = '--villages';
+            $args[] = is_array($options['villages']) ? implode(',', $options['villages']) : $options['villages'];
+        }
+
+        return $this->execute('python_engine/generators/excel_templates.py', $args);
     }
 }

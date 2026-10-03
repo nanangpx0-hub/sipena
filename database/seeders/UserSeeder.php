@@ -13,9 +13,8 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        $approverRole = DB::table('roles')->where('name', 'approver')->first();
+        $adminRole = DB::table('roles')->where('name', 'admin')->first();
         $operatorRole = DB::table('roles')->where('name', 'operator')->first();
-        $editorRole = DB::table('roles')->where('name', 'editor')->first();
         $viewerRole = DB::table('roles')->where('name', 'viewer')->first();
 
         $users = [
@@ -24,7 +23,7 @@ class UserSeeder extends Seeder
                 'name' => 'Koordinator Publikasi (Approver)',
                 'email' => 'approver@bps3509.go.id',
                 'password' => Hash::make('password123'),
-                'role_id' => $approverRole->id,
+                'role_id' => $adminRole->id,
                 'is_active' => true,
             ],
             [
@@ -40,7 +39,7 @@ class UserSeeder extends Seeder
                 'name' => 'Editor Bahasa & Ulasan',
                 'email' => 'editor@bps3509.go.id',
                 'password' => Hash::make('password123'),
-                'role_id' => $editorRole->id,
+                'role_id' => $adminRole->id,
                 'is_active' => true,
             ],
             [

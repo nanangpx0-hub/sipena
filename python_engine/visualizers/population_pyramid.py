@@ -23,9 +23,21 @@ def generate_population_pyramid(output_svg_path, district_name="Kabupaten Jember
         "60-64", "65-69", "70-74", "75+"
     ]
 
-    if data:
+    if data is not None:
+        if not isinstance(data, dict):
+            return {"status": "error", "message": "Argumen data piramida harus berupa objek JSON"}
         males = data.get("males", [])
         females = data.get("females", [])
+        # Deret wajib lengkap 16 kelompok umur agar grafik tidak diisi angka karangan.
+        if len(males) != len(age_groups) or len(females) != len(age_groups):
+            return {"status": "error", "message": "Deret piramida tidak lengkap (butuh 16 kelompok umur)"}
+        try:
+            males = [int(v) for v in males]
+            females = [int(v) for v in females]
+        except (TypeError, ValueError):
+            return {"status": "error", "message": "Deret piramida bukan angka yang sah"}
+        if any(v < 0 for v in males) or any(v < 0 for v in females):
+            return {"status": "error", "message": "Deret piramida berisi nilai negatif"}
     else:
         # Default Jember standard demographic distribution
         males = [92100, 94200, 96400, 98100, 95300, 91200, 88400, 85300, 79200, 72100, 64200, 53100, 41200, 31100, 21400, 18500]
@@ -69,9 +81,21 @@ def main():
     parser.add_argument("--output", default="storage/custom_assets/population_pyramid.svg", help="Target SVG file path")
     parser.add_argument("--district", default="Kabupaten Jember", help="Nama wilayah/kecamatan")
     parser.add_argument("--year", type=int, default=2026, help="Tahun data")
+    parser.add_argument("--data-json", default=None, help='Deret data JSON: {"males":[16], "females":[16]}')
     args = parser.parse_args()
 
-    result = generate_population_pyramid(args.output, args.district, args.year)
+    data = None
+    if args.data_json is not None:
+        try:
+            parsed = json.loads(args.data_json)
+            if not isinstance(parsed, dict):
+                raise ValueError("argumen --data-json bukan objek JSON")
+            data = parsed
+        except (ValueError, TypeError) as exc:
+            print(json.dumps({"status": "error", "message": "Data piramida tidak sah: %s" % exc}))
+            return
+
+    result = generate_population_pyramid(args.output, args.district, args.year, data=data)
     print(json.dumps(result))
 
 if __name__ == "__main__":

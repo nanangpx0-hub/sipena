@@ -38,6 +38,15 @@ class DashboardController extends Controller
             ->pluck('count', 'status')
             ->toArray();
 
+        // Highlight wilayah dari data riil (luas & jumlah desa). Bila data tidak
+        // tersedia, tampilkan status "belum ada data" — bukan angka karangan.
+        $widestDistrict = District::query()->orderByDesc('total_area_sqkm')->first();
+        $mostVillagesDistrict = District::withCount('villages')->orderByDesc('villages_count')->first();
+        $villageCounts = District::withCount('villages')->pluck('villages_count', 'name');
+
+        // Progres 31 KDA per status bab (untuk bar progres penyelesaian).
+        $kdaStatusCounts = collect($kdaPublications)->groupBy('status')->map->count()->toArray();
+
         // Target rilis terdekat (KDA hard deadline) — cast aman: value() string vs Carbon.
         $nearestDeadline = Publication::whereNotNull('hard_deadline')
             ->when($activeYear !== null, fn ($query) => $query->where('year', $activeYear))
@@ -50,6 +59,10 @@ class DashboardController extends Controller
             }
         }
 
+        // Pratinjau grafik SVG hasil Python Engine bila sudah dirender.
+        $pyramidSvg = $this->svgRelOrNull('storage'.DIRECTORY_SEPARATOR.'custom_assets'.DIRECTORY_SEPARATOR.'population_pyramid.svg');
+        $climateSvg = $this->svgRelOrNull('storage'.DIRECTORY_SEPARATOR.'custom_assets'.DIRECTORY_SEPARATOR.'climate_chart.svg');
+
         return view('dashboard.index', compact(
             'activeYear',
             'kdaPublications',
@@ -58,8 +71,24 @@ class DashboardController extends Controller
             'totalRawFiles',
             'totalDistricts',
             'statusCounts',
-            'nearestDeadline'
+            'nearestDeadline',
+            'widestDistrict',
+            'mostVillagesDistrict',
+            'villageCounts',
+            'kdaStatusCounts',
+            'pyramidSvg',
+            'climateSvg'
         ));
+    }
+
+    /**
+     * Path relatif SVG (memakai pemisah aman) bila berkas benar-benar ada.
+     */
+    protected function svgRelOrNull(string $relative): ?string
+    {
+        $abs = base_path(str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $relative));
+
+        return file_exists($abs) ? str_replace(DIRECTORY_SEPARATOR, '/', $relative) : null;
     }
 
     /**
@@ -67,7 +96,10 @@ class DashboardController extends Controller
      */
     public function covers(Request $request)
     {
-        $publications = Publication::with('district')->orderBy('title')->get();
+        $activeYear = ActiveYear::get();
+        $publications = Publication::with('district')
+            ->when($activeYear !== null, fn ($query) => $query->where('year', $activeYear))
+            ->orderBy('title')->get();
         $selectedId = $request->get('publication_id', $publications->first()?->id);
         $selectedPub = Publication::with(['district', 'narratives', 'visualAssets'])->find($selectedId);
         $customCover = null;
@@ -77,7 +109,7 @@ class DashboardController extends Controller
                 ->latest()->first();
         }
 
-        return view('covers.index', compact('publications', 'selectedPub', 'customCover'));
+        return view('covers.index', compact('publications', 'selectedPub', 'customCover', 'activeYear'));
     }
 
     /**

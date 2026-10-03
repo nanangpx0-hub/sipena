@@ -48,6 +48,104 @@ def generate_sample_vkd():
         data[f"{attr['code']}_Y"] = np.random.choice([3, 4], size=n_resp, p=[0.25, 0.75])
     return pd.DataFrame(data)
 
+# Profil demografi konsumen PST. Kolom VKD bersifat opsional: bila berkas
+# kuesioner tidak memuatnya, blok profil TIDAK disertakan dan sistem
+# menampilkan kondisi "belum ada data" (AGENTS.md §1.4 - tanpa angka tebakan).
+DEMOGRAPHIC_FIELDS = [
+    {
+        "key": "gender",
+        "label": "Jenis Kelamin",
+        "label_en": "Gender",
+        "candidates": ["jenis_kelamin", "gender", "jk", "sex", "Lk", "Perempuan"],
+    },
+    {
+        "key": "age_group",
+        "label": "Kelompok Usia",
+        "label_en": "Age Group",
+        "candidates": ["kelompok_usia", "usia", "age", "umur", "rentang_usia"],
+    },
+    {
+        "key": "education",
+        "label": "Pendidikan Terakhir",
+        "label_en": "Education Level",
+        "candidates": ["pendidikan", "education", "jenjang_pendidikan", "tingkat_pendidikan"],
+    },
+    {
+        "key": "occupation",
+        "label": "Profesi / Pekerjaan",
+        "label_en": "Occupation",
+        "candidates": ["profesi", "occupation", "pekerjaan", "jabatan", "sektor"],
+    },
+    {
+        "key": "respondent_type",
+        "label": "Jenis Konsumen",
+        "label_en": "Consumer Segment",
+        "candidates": ["jenis_konsumen", "segmen", "segment", "tipe_konsumen", "kategori_konsumen"],
+    },
+]
+
+
+def build_respondent_profile(df):
+    """
+    Ringkas profil demografi responden dari kolom VKD yang bersifat opsional.
+
+    Mengembalikan dict berisi kunci dimensi yang memuat frekuensi (label, jumlah,
+    persentase) serta total responden. Dimensi tanpa kolom yang cocok dilewati
+    sepenuhnya, bukan diisi nol, agar halaman tidak pernah menampilkan angka
+    rekaan.
+    """
+    total_respondents = int(len(df))
+    dimensions = []
+
+    for field in DEMOGRAPHIC_FIELDS:
+        column = None
+        for candidate in field["candidates"]:
+            if candidate in df.columns:
+                column = candidate
+                break
+
+        if column is None:
+            # Pencocokan longgar: kolom berlabel mirip namun tidak persis sama.
+            for actual in df.columns:
+                normalized = str(actual).strip().lower().replace(" ", "_")
+                if any(candidate.lower() in normalized for candidate in field["candidates"]):
+                    column = actual
+                    break
+
+        if column is None:
+            continue
+
+        series = df[column].dropna().astype(str).str.strip()
+        series = series[series != ""]
+        if series.empty:
+            continue
+
+        counts = series.value_counts()
+        breakdown = [
+            {
+                "label": str(label),
+                "count": int(count),
+                "percent": round(float(count) * 100.0 / total_respondents, 2) if total_respondents else 0.0,
+            }
+            for label, count in counts.items()
+        ]
+
+        dimensions.append({
+            "key": field["key"],
+            "label": field["label"],
+            "label_en": field["label_en"],
+            "column": str(column),
+            "breakdown": breakdown,
+        })
+
+    if not dimensions:
+        return None
+
+    return {
+        "total_respondents": total_respondents,
+        "dimensions": dimensions,
+    }
+
 def calculate_skd_metrics(df, output_svg_path=None):
     results = []
     x_means = []
@@ -211,7 +309,8 @@ def calculate_skd_metrics(df, output_svg_path=None):
         "ipak_score": round(min(ipak_score, 100.0), 2),
         "quadrants": quadrants,
         "cartesian_svg_path": svg_relative_path,
-        "attributes": results
+        "attributes": results,
+        "respondent_profile": build_respondent_profile(df),
     }
 
 def main():

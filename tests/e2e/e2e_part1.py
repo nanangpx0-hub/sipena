@@ -82,9 +82,13 @@ def make_vkd_xlsx(path):
     def row(vals):
         return "<row>" + "".join(cell(v) for v in vals) + "</row>"
     srows = row(hdr)
-    for i in range(40):
-        vals = [3 + (1 if (i + j) % 3 else 0) for j in range(24)]
-        srows += row(vals)
+    # Sebar skor tiap atribut ke seluruh kuadran A/B/C/D terhadap grand mean
+    # (3.5) sehingga tabel matriks 12 unsur benar-benar memuat label Kuadran A-D.
+    levels = [(2, 5), (5, 5), (2, 2), (5, 2)]  # (X/kepuasan, Y/kepentingan)
+    xs = [levels[i % 4][0] for i in range(12)]
+    ys = [levels[i % 4][1] for i in range(12)]
+    for _ in range(40):
+        srows += row(xs + ys)
     with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as z:
         z.writestr("[Content_Types].xml", '<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>')
         z.writestr("_rels/.rels", '<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>')
